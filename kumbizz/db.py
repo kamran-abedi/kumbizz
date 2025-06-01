@@ -528,7 +528,8 @@ def harvest_farm(telegram_id):
         if not total_collected:
             return False, "هنوز چیزی برای برداشت آماده نیست."
 
-        xp_gain += 10 * get_level(telegram_id)
+        farmer_level, ksshr = get_level(telegram_id) 
+        xp_gain += 10 * farmer_level
         add_xp(telegram_id, xp_gain)
         result_text = "\n".join(f"• {line}" for line in total_collected)
         return True, f"برداشت موفق:\n{result_text} +{xp_gain}XP"
