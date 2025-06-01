@@ -523,16 +523,17 @@ def harvest_farm(telegram_id):
             WHERE telegram_id=? AND unit_type=?
         """, (now.strftime("%Y-%m-%d %H:%M:%S"), telegram_id, unit_type))
 
-        conn.commit()
+    if not total_collected:
+        return False, "هنوز چیزی برای برداشت آماده نیست."
 
-        if not total_collected:
-            return False, "هنوز چیزی برای برداشت آماده نیست."
+    # حالا xp بده بعد از حلقه
+    farmer_level, _ = get_level(telegram_id) 
+    xp_gain += 10 * farmer_level
+    add_xp(telegram_id, xp_gain)
 
-        farmer_level, ksshr = get_level(telegram_id) 
-        xp_gain += 10 * farmer_level
-        add_xp(telegram_id, xp_gain)
-        result_text = "\n".join(f"• {line}" for line in total_collected)
-        return True, f"برداشت موفق:\n{result_text}"
+    conn.commit()
+    result_text = "\n".join(f"• {line}" for line in total_collected)
+    return True, f"🌾 برداشت موفق:\n{result_text}"
         
 def list_in_market(telegram_id, item_name, price):
 
