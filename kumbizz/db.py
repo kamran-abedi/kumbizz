@@ -532,7 +532,7 @@ def harvest_farm(telegram_id):
         xp_gain += 10 * farmer_level
         add_xp(telegram_id, xp_gain)
         result_text = "\n".join(f"• {line}" for line in total_collected)
-        return True, f"برداشت موفق:\n{result_text} +{xp_gain}XP"
+        return True, f"برداشت موفق:\n{result_text}"
         
 def list_in_market(telegram_id, item_name, price):
 
