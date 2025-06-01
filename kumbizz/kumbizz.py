@@ -380,7 +380,8 @@ def handle_rob(message):
     update_balance(thief_id, steal_amount)
     register_rob(thief_id)  # ثبت زمان برای cooldown
     register_mission_action(thief_id, "rob")
-    xp_gain = 10 * get_level(thief_id)
+    thief_level, ksshr = get_level(thief_id) 
+    xp_gain = 10 * thief_level
     add_xp(thief_id, xp_gain)
 
     bot.reply_to(message, f"تو {steal_amount} کوین از کیف پول قربانی دزدیدی! {msg_effect} +{xp_gain}XP")
