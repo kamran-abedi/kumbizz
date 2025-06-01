@@ -756,3 +756,6 @@ def claim_mission_rewards(telegram_id):
         return False, "هنوز هیچ ماموریتی رو کامل نکردی یا جایزه‌شو گرفتی."
     return True, f"🎉 {total_claimed} ماموریت کامل شد!\n🏆 {total_reward} کوین + {xp_reward} XP گرفتی!"
 
+def ensure_user(telegram_id):
+    cursor.execute("INSERT OR IGNORE INTO users (telegram_id) VALUES (?)", (telegram_id,))
+    conn.commit()
