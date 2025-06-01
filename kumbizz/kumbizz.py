@@ -540,6 +540,7 @@ def handle_list(message):
 
 @bot.message_handler(commands=["market"])
 def handle_market(message):
+    return bot.reply_to(message, "این بخش هنوز راه نیوفتاده")
     parts = message.text.split(" ", 1)
     filter_text = parts[1].strip() if len(parts) > 1 else None
 
@@ -562,6 +563,7 @@ def handle_market(message):
 
 @bot.message_handler(commands=["trade"])
 def handle_trade(message):
+    return bot.reply_to(message, "این بخش هنوز راه نیوفتاده")
     parts = message.text.split(" ", 1)
     if len(parts) < 2:
         return bot.reply_to(message, "فرمت درست: /trade [id]")
@@ -578,6 +580,7 @@ def handle_trade(message):
 
 @bot.message_handler(commands=["cancel"])
 def handle_cancel(message):
+    return bot.reply_to(message, "این بخش هنوز راه نیوفتاده")
     parts = message.text.split(" ", 1)
     if len(parts) < 2:
         return bot.reply_to(message, "فرمت درست: /cancel [id]")
