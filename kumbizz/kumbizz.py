@@ -24,12 +24,14 @@ def start(message):
 @bot.message_handler(commands=["balance"])
 def show_balance(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     balance, bank_balance, bank_capacity = get_bank_info(telegram_id)
     bot.reply_to(message, f"کیف پول: {balance} کوین\nبانک: {bank_balance}/{bank_capacity} کوین")
 
 @bot.message_handler(commands=["beg"])
 def beg(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     chance = 90
     chance_percent = random.randint(1, 100)
     if(chance >= chance_percent):
@@ -53,6 +55,7 @@ def shop(message):
 def buy(message):
     try:
         telegram_id = get_id(message)
+        add_user(telegram_id)
         item_name = message.text.split(" ", 1)[1]
         item = shop_items.get(item_name)
 
@@ -74,6 +77,7 @@ def buy(message):
 @bot.message_handler(commands=["inventory"])
 def handle_inventory(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     items = get_inventory(telegram_id)
 
     if not items:
@@ -91,6 +95,7 @@ def handle_inventory(message):
 @bot.message_handler(commands=["level"])
 def level(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     level, xp = get_level(telegram_id)
     req = xp_required(level)
     bot.reply_to(message, f"لول فعلی: {level}\nتجربه: {xp}/{req}")
@@ -100,6 +105,7 @@ def level(message):
 @bot.message_handler(commands=["work"])
 def work(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
 
     if is_on_cooldown(telegram_id, "work", 2):
         return bot.reply_to(message, "⏳ باید ۲ دقیقه بین هر بار کار کردن فاصله بدی.")
@@ -121,6 +127,7 @@ from fish_data import fish_list
 @bot.message_handler(commands=["fish"])
 def fish(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     result = get_best_item_by_type(telegram_id, "fishing rod")
 
     if is_on_cooldown(telegram_id, "fish", 1):
@@ -162,6 +169,7 @@ from hunt_data import hunt_list
 @bot.message_handler(commands=["hunt"])
 def hunt(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     result = get_best_item_by_type(telegram_id, "weapon")
 
     if is_on_cooldown(telegram_id, "hunt", 1):
@@ -207,6 +215,7 @@ item_prices = {item["name"]: item["base_price"] for item in (fish_list + hunt_li
 def sell(message):
     try:
         telegram_id = get_id(message)
+        add_user(telegram_id)
         parts = message.text.replace("/sell", "").strip().split(" ", 1)
 
         if len(parts) < 2:
@@ -246,6 +255,8 @@ def gift(message):
 
         receiver_id = message.reply_to_message.from_user.id
         sender_id = get_id(message)
+        add_user(sender_id)
+        add_user(receiver_id)
 
         if receiver_id == sender_id:
             bot.reply_to(message, "نمی‌تونی به خودت هدیه بدی!")
@@ -283,6 +294,7 @@ def handle_deposit(message):
     try:
         amount = int(message.text.split(" ")[1])
         telegram_id = get_id(message)
+        add_user(telegram_id)
         success, msg = deposit(telegram_id, amount)
         bot.reply_to(message, msg)
     except:
@@ -293,6 +305,7 @@ def handle_withdraw(message):
     try:
         amount = int(message.text.split(" ")[1])
         telegram_id = get_id(message)
+        add_user(telegram_id)
         success, msg = withdraw(telegram_id, amount)
         bot.reply_to(message, msg)
     except:
@@ -303,6 +316,7 @@ def handle_upgradebank(message):
     try:
         cost = int(message.text.split(" ")[1])
         telegram_id = get_id(message)
+        add_user(telegram_id)
         success, msg = upgrade_bank(telegram_id, cost)
         bot.reply_to(message, msg)
     except:
@@ -311,6 +325,7 @@ def handle_upgradebank(message):
 @bot.message_handler(commands=["interest"])
 def handle_interest(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     success, msg = apply_daily_interest(telegram_id)
     bot.reply_to(message, msg)
 
@@ -324,7 +339,9 @@ def handle_rob(message):
         return
 
     thief_id = get_id(message)
+    add_user(thief_id)
     victim_id = message.reply_to_message.from_user.id
+    add_user(victim_id)
 
     if thief_id == victim_id:
         bot.reply_to(message, "از خودت نمی‌تونی بدزدی!")
@@ -371,12 +388,14 @@ def handle_rob(message):
 @bot.message_handler(commands=["buy_mine"])
 def handle_buy_mine(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     success, msg = buy_mine(telegram_id)
     bot.reply_to(message, msg)
 
 @bot.message_handler(commands=["mine"])
 def handle_mine(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     success, msg = mine_resources(telegram_id)
     register_mission_action(telegram_id, "mine")
     bot.reply_to(message, msg)
@@ -396,6 +415,7 @@ def handle_craft(message):
         return bot.reply_to(message, f"چنین آیتمی برای ساخت وجود نداره.")
 
     telegram_id = get_id(message)
+    add_user(telegram_id)
     inventory = {name: qty for name, qty, _ in get_inventory(telegram_id)}
 
     for mat, qty_needed in recipe["materials"].items():
@@ -413,6 +433,7 @@ def handle_craft(message):
 @bot.message_handler(commands=["upgrade_mine"])
 def handle_upgrade_mine(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     success, msg = upgrade_mine(telegram_id)
     bot.reply_to(message, msg)
 
@@ -429,6 +450,7 @@ def handle_cook(message):
         return bot.reply_to(message, "چنین غذایی وجود نداره.")
 
     telegram_id = get_id(message)
+    add_user(telegram_id)
     inventory = {name: qty for name, qty, _ in get_inventory(telegram_id)}
 
     for mat, qty in recipe["materials"].items():
@@ -456,6 +478,7 @@ def handle_eat(message):
         return bot.reply_to(message, "چنین غذایی وجود نداره.")
 
     telegram_id = get_id(message)
+    add_user(telegram_id)
     inventory = {name: qty for name, qty, _ in get_inventory(telegram_id)}
     if inventory.get(food_name, 0) < 1:
         return bot.reply_to(message, "این غذا رو نداری!")
@@ -479,12 +502,14 @@ def handle_buy_farm(message):
 
     unit_type = parts[1].strip()
     telegram_id = get_id(message)
+    add_user(telegram_id)
     success, msg = buy_farm_unit(telegram_id, unit_type)
     bot.reply_to(message, msg)
 
 @bot.message_handler(commands=["harvest"])
 def handle_harvest(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     success, msg = harvest_farm(telegram_id)
     register_mission_action(telegram_id, "harvest")
     bot.reply_to(message, msg)
@@ -502,6 +527,7 @@ def handle_list(message):
         return bot.reply_to(message, "قیمت باید عدد باشه.")
 
     telegram_id = get_id(message)
+    add_user(telegram_id)
     inventory = {name: qty for name, qty, _ in get_inventory(telegram_id)}
     if inventory.get(item_name, 0) < 1:
         return bot.reply_to(message, "این آیتم رو نداری!")
@@ -545,6 +571,7 @@ def handle_trade(message):
         return bot.reply_to(message, "شناسه آگهی باید عدد باشه.")
 
     telegram_id = get_id(message)
+    add_user(telegram_id)
     success, msg = trade_from_market(telegram_id, trade_id)
     bot.reply_to(message, msg)
 
@@ -560,6 +587,7 @@ def handle_cancel(message):
         return bot.reply_to(message, "شناسه باید عدد باشه.")
 
     telegram_id = get_id(message)
+    add_user(telegram_id)
     success, msg = cancel_market_item(telegram_id, trade_id)
     register_mission_action(telegram_id, "trade")
     bot.reply_to(message, msg)
@@ -567,6 +595,7 @@ def handle_cancel(message):
 @bot.message_handler(commands=["missions"])
 def handle_missions(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     missions = get_user_missions(telegram_id)
     if not missions:
         return bot.reply_to(message, "هنوز ماموریتی برای امروز ثبت نشده.")
@@ -581,6 +610,7 @@ def handle_missions(message):
 @bot.message_handler(commands=["claim"])
 def handle_claimmissions(message):
     telegram_id = get_id(message)
+    add_user(telegram_id)
     success, msg = claim_mission_rewards(telegram_id)
     bot.reply_to(message, msg)
 
