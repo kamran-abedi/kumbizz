@@ -1,5 +1,5 @@
 import telebot
-from db import init_db, add_user, get_balance, update_balance, add_item, get_inventory, add_xp, get_level, has_item, xp_required, get_best_item_by_type, reduce_item_hp, add_catch, sell_item, transfer_item, apply_daily_interest, upgrade_bank, withdraw, deposit, get_bank_info, init_rob_table, register_rob, can_rob, consume_item, buy_mine, mine_resources, upgrade_mine, effects, set_cooldown, is_on_cooldown, buy_farm_unit, harvest_farm, list_in_market, get_market_list, trade_from_market, cancel_market_item, get_user_missions, claim_mission_rewards, register_mission_action
+from db import init_db, add_user, get_balance, update_balance, add_item, get_inventory, add_xp, get_level, has_item, xp_required, get_best_item_by_type, reduce_item_hp, add_catch, sell_item, transfer_item, apply_daily_interest, upgrade_bank, withdraw, deposit, get_bank_info, init_rob_table, register_rob, can_rob, consume_item, buy_mine, mine_resources, upgrade_mine, effects, set_cooldown, is_on_cooldown, buy_farm_unit, harvest_farm, list_in_market, get_market_list, trade_from_market, cancel_market_item, get_user_missions, claim_mission_rewards, register_mission_action, ensure_user
 from items import shop_items
 from hunt_data import hunt_list
 from fish_data import fish_list
