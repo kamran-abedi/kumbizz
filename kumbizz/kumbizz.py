@@ -653,6 +653,30 @@ def handle_claimmissions(message):
     success, msg = claim_mission_rewards(telegram_id)
     bot.reply_to(message, msg)
 
+@bot.message_handler(commands=["weekly"])
+def handle_weekly(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+
+    if not can_claim_reward(telegram_id, "weekly"):
+        return bot.reply_to(message, "🕓 پاداش هفتگی‌ات رو این هفته گرفتی. هفته بعد بیا!")
+
+    update_balance(telegram_id, 10000)
+    update_reward_claim_time(telegram_id, "weekly")
+    bot.reply_to(message, "🎁 پاداش هفتگی گرفتی: 10000 سکه!")
+
+@bot.message_handler(commands=["monthly"])
+def handle_monthly(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+
+    if not can_claim_reward(telegram_id, "monthly"):
+        return bot.reply_to(message, "🕓 این ماه پاداشت رو گرفتی. ماه بعد بیا!")
+
+    update_balance(telegram_id, 100000)
+    update_reward_claim_time(telegram_id, "monthly")
+    bot.reply_to(message, "🎁 پاداش ماهانه گرفتی: 100000 سکه!")
+
 @bot.message_handler(commands=["commands", "help"])
 def handle_commands(message):
     text = """
