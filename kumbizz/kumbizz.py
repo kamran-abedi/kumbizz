@@ -207,9 +207,10 @@ def hunt(message):
 
 from fish_data import fish_list
 from hunt_data import hunt_list
+from farm_data import farm_sellable
 
 # ساخت دیکشنری قیمت‌ها برای lookup سریع
-item_prices = {item["name"]: item["base_price"] for item in (fish_list + hunt_list + mine_drops + farm_data)}
+item_prices = {item["name"]: item["base_price"] for item in (fish_list + hunt_list + mine_drops + farm_sellable)}
 
 @bot.message_handler(commands=["sell"])
 def sell(message):
