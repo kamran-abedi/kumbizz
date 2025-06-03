@@ -116,27 +116,5 @@ shop_items = {
         "type": "defense",
         "description": "مقدار دزدی رو نصف می‌کنه.",
         "one_time": False
-    },
-    "سنگ آهن": {"chance": 55, "type": "common", "description": "منابع معدنی", "price": 200},
-    "زغال سنگ": {"chance": 30, "type": "common", "description": "منابع معدنی", "price": 250},
-    "طلا": {"chance": 8, "type": "rare", "description": "منابع معدنی", "price": 800},
-    "کریستال آبی": {"chance": 5, "type": "rare", "description": "منابع معدنی", "price": 2000},
-    "سنگ آتشین": {"chance": 1.5, "type": "epic", "description": "منابع معدنی", "price": 3500},
-    "الماس": {"chance": 0.5, "type": "legendary", "description": "منابع معدنی", "price": 5000},
-    "تخم مرغ": {
-        "price": 100,
-        "type": "farm",
-        "description": "مقدار دزدی رو نصف می‌کنه."},
-    "شیر": {
-        "price": 180,
-        "type": "farm",
-        "description": "مقدار دزدی رو نصف می‌کنه."},
-    "عسل": {
-        "price": 300,
-        "type": "farm",
-        "description": "مقدار دزدی رو نصف می‌کنه."},
-    "گیاه دارویی": {
-        "price": 500,
-        "type": "farm",
-        "description": "مقدار دزدی رو نصف می‌کنه."}
+    }
 }
