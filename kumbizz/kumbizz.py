@@ -438,6 +438,13 @@ def handle_upgrade_mine(message):
     success, msg = upgrade_mine(telegram_id)
     bot.reply_to(message, msg)
 
+@bot.message_handler(commands=["minestatus"])
+def handle_mine_status(message):
+    telegram_id = get_id(message)
+    from db import get_mine_status
+    success, msg = get_mine_status(telegram_id)
+    bot.reply_to(message, msg, parse_mode="HTML")
+
 @bot.message_handler(commands=["cook"])
 def handle_cook(message):
     from food_data import food_data
