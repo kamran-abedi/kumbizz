@@ -531,6 +531,24 @@ def handle_farm_status(message):
 
     bot.reply_to(message, response, parse_mode="HTML")
 
+
+@bot.message_handler(commands=["farm_shop"])
+def handle_farm_shop(message):
+    from farm_data import farm_data
+    text = "🌱 <b>فروشگاه مزرعه</b>\n\n"
+    
+    for name, info in farm_data.items():
+        price = info["price"]
+        product = info["product"]
+        interval = info["interval_hours"]
+        text += (
+            f"• <b>{name}</b>\n"
+            f"  💰 قیمت: {price} سکه\n"
+            f"  🌾 تولید: {product} هر {interval} ساعت\n\n"
+        )
+
+    bot.reply_to(message, text, parse_mode="HTML")
+
 @bot.message_handler(commands=["list"])
 def handle_list(message):
     parts = message.text.split(" ", 2)
