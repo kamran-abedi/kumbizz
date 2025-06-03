@@ -851,15 +851,4 @@ def ensure_user(telegram_id):
     cursor.execute("INSERT OR IGNORE INTO users (telegram_id) VALUES (?)", (telegram_id,))
     conn.commit()
 
-cursor.execute("DELETE FROM inventory WHERE item_name = ?", ('الماس',))
-conn.commit()
-cursor.execute("DELETE FROM inventory WHERE item_name = ?", ('اسنگ آهن',))
-conn.commit()
-cursor.execute("DELETE FROM inventory WHERE item_name = ?", ('طلا',))
-conn.commit()
-cursor.execute("DELETE FROM inventory WHERE item_name = ?", ('کریستال آبی',))
-conn.commit()
-cursor.execute("DELETE FROM inventory WHERE item_name = ?", ('سنگ آتشین',))
-conn.commit()
-cursor.execute("DELETE FROM inventory WHERE item_name = ?", ('زغال سنگ',))
-conn.commit()
+
