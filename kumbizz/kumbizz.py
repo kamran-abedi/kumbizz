@@ -209,7 +209,7 @@ from fish_data import fish_list
 from hunt_data import hunt_list
 
 # ساخت دیکشنری قیمت‌ها برای lookup سریع
-item_prices = {item["name"]: item["base_price"] for item in (fish_list + hunt_list)}
+item_prices = {item["name"]: item["base_price"] for item in (fish_list + hunt_list + mine_drops + farm_data)}
 
 @bot.message_handler(commands=["sell"])
 def sell(message):
