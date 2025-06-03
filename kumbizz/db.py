@@ -392,12 +392,6 @@ def mine_resources(telegram_id):
 
     for _ in range(settings["count"]):
         result = random.choice(choices)
-        if result not in shop_items:
-            shop_items[result] = {
-                "price": 0,
-                "type": "material",
-                "description": f"منبع معدنی: {result}"
-            }
         add_item(telegram_id, result)
         collected.append(result)
 
