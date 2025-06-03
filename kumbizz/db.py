@@ -403,7 +403,8 @@ def mine_resources(telegram_id):
 
     cursor.execute("UPDATE users SET last_mine = ? WHERE telegram_id=?", (now.strftime("%Y-%m-%d %H:%M:%S"), telegram_id))
     conn.commit()
-    xp_gain = 10 * mine_level * get_level(telegram_id)
+    player_level, ksshr = get_level(telegram_id)
+    xp_gain = 10 * mine_level * player_level
     add_xp(telegram_id, xp_gain)
     result_text = "\n".join(f"• {item}" for item in collected)
     return True, f"از معدنت استخراج کردی:\n{result_text} +{xp_gain}XP"
