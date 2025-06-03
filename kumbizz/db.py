@@ -850,7 +850,3 @@ def claim_mission_rewards(telegram_id):
 def ensure_user(telegram_id):
     cursor.execute("INSERT OR IGNORE INTO users (telegram_id) VALUES (?)", (telegram_id,))
     conn.commit()
-
-cursor.execute("ALTER TABLE users ADD COLUMN last_daily TEXT;")
-cursor.execute("ALTER TABLE users ADD COLUMN last_weekly TEXT;")
-cursor.execute("ALTER TABLE users ADD COLUMN last_monthly TEXT;")
