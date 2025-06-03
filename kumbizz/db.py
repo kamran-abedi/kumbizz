@@ -876,4 +876,4 @@ def update_reward_claim_time(telegram_id, reward_type):
     cursor.execute(f"UPDATE users SET last_{reward_type} = ? WHERE telegram_id=?", (now, telegram_id))
     conn.commit()
 
-cursor.execute("ALTER TABLE users ADD COLUMN last_weekly TEXT;")
+cursor.execute("ALTER TABLE users ADD COLUMN last_monthly TEXT;")
