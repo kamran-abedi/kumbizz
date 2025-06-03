@@ -515,6 +515,15 @@ def handle_harvest(message):
     register_mission_action(telegram_id, "harvest")
     bot.reply_to(message, msg)
 
+from db import farm_status
+
+@bot.message_handler(commands=["farmstatus"])
+def handle_farm_status(message):
+    telegram_id = get_id(message)
+    response = farm_status(telegram_id)
+
+    bot.reply_to(message, response, parse_mode="HTML")
+
 @bot.message_handler(commands=["list"])
 def handle_list(message):
     parts = message.text.split(" ", 2)
