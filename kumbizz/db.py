@@ -534,6 +534,40 @@ def harvest_farm(telegram_id):
     conn.commit()
     result_text = "\n".join(f"• {line}" for line in total_collected)
     return True, f"🌾 برداشت موفق:\n{result_text}"
+
+def farm_status(telegram_id):
+    
+    # اطلاعات مزرعه کاربر از دیتابیس بگیر
+    cursor.execute("SELECT unit_type, quantity, last_harvest FROM farm_units WHERE telegram_id=?", (telegram_id,))
+    rows = cursor.fetchall()
+
+    if not rows:
+        return "🚜 شما هنوز هیچ واحد مزرعه‌ای ندارید."
+
+    # پردازش اطلاعات
+    now = datetime.datetime.utcnow()
+    from farm_data import farm_data  # داده‌های واحدهای مزرعه
+    response = "🌾 <b>وضعیت مزرعه شما:</b>\n"
+    for unit_type, qty, last_harvest in rows:
+        unit_info = farm_data.get(unit_type)
+        if not unit_info:
+            continue
+
+        product = unit_info["product"]
+        interval_hours = unit_info["interval_hours"]
+
+        # محاسبه زمان باقی‌مانده
+        cooldown = datetime.timedelta(hours=interval_hours)
+        if last_harvest:
+            last_time = datetime.datetime.strptime(last_harvest, "%Y-%m-%d %H:%M:%S")
+            time_remaining = max(cooldown - (now - last_time), datetime.timedelta(0))
+            time_left = f"{time_remaining.seconds // 3600} ساعت و {(time_remaining.seconds // 60) % 60} دقیقه"
+        else:
+            time_left = "آماده برداشت"
+
+        response += f"• {unit_type} × {qty} (محصول: {product})\n"
+        response += f"  ⏳ زمان باقی‌مانده: {time_left}\n"
+    return response
         
 def list_in_market(telegram_id, item_name, price):
 
