@@ -653,6 +653,20 @@ def handle_claimmissions(message):
     success, msg = claim_mission_rewards(telegram_id)
     bot.reply_to(message, msg)
 
+@bot.message_handler(commands=["daily"])
+def handle_daily(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+
+    from db import can_claim_reward, update_reward_claim_time, update_balance
+
+    if not can_claim_reward(telegram_id, "daily"):
+        return bot.reply_to(message, "🕓 پاداش روزانه‌ات رو امروز گرفتی. فردا دوباره بیا!")
+
+    update_balance(telegram_id, 1000)
+    update_reward_claim_time(telegram_id, "daily")
+    bot.reply_to(message, "🎁 پاداش روزانه گرفتی: 1000 سکه!")
+
 @bot.message_handler(commands=["weekly"])
 def handle_weekly(message):
     telegram_id = get_id(message)
