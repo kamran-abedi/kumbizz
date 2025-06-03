@@ -1,6 +1,6 @@
 farm_data = {
     "مرغ": {
-        "product": "تخم‌مرغ",
+        "product": "تخم مرغ",
         "interval_hours": 6,
         "price": 2000
     },
