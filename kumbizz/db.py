@@ -409,6 +409,66 @@ def mine_resources(telegram_id):
     result_text = "\n".join(f"• {item}" for item in collected)
     return True, f"از معدنت استخراج کردی:\n{result_text} +{xp_gain}XP"
 
+import datetime
+from db import cursor
+from mine_items import mine_settings, mine_drops
+
+def get_mine_status(telegram_id):
+    cursor.execute("SELECT has_mine, mine_level, last_mine FROM users WHERE telegram_id=?", (telegram_id,))
+    row = cursor.fetchone()
+
+    if not row:
+        return False, "❌ شما هنوز ثبت نشده‌اید. لطفاً با /start شروع کنید."
+
+    has_mine, mine_level, last_mine = row
+    if not has_mine:
+        return False, "⛏ شما هنوز معدن ندارید. برای شروع باید معدن بخرید یا ارتقا بدی."
+
+    # اطلاعات سطح
+    mine_info = mine_settings.get(mine_level)
+    if not mine_info:
+        return False, "❌ اطلاعات سطح معدن شما یافت نشد."
+
+    cooldown_hours = mine_info["cooldown"]
+    cooldown = datetime.timedelta(hours=cooldown_hours)
+    now = datetime.datetime.utcnow()
+
+    # محاسبه زمان باقی‌مانده
+    if last_mine:
+        try:
+            last_time = datetime.datetime.strptime(last_mine, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            return False, "❌ خطا در ثبت زمان آخرین استخراج."
+        delta = now - last_time
+        if delta < cooldown:
+            remaining = cooldown - delta
+            hours = remaining.seconds // 3600
+            minutes = (remaining.seconds // 60) % 60
+            status = f"⏳ {hours} ساعت و {minutes} دقیقه تا استخراج بعدی"
+        else:
+            status = "✅ آماده استخراج"
+    else:
+        status = "✅ آماده استخراج"
+
+    # محصولات نمایشی
+    available_drops = []
+    for drop in mine_drops:
+        chance = drop.get("chance", 0)
+        if chance > 0:
+            available_drops.append(drop["name"])
+
+    drops_text = ", ".join(available_drops)
+
+    text = (
+        f"⛏ <b>وضعیت معدن شما:</b>\n"
+        f"• سطح: {mine_level}\n"
+        f"• ظرفیت برداشت: {mine_info['count']} آیتم\n"
+        f"• وضعیت: {status}\n"
+        f"• محصولات ممکن: {drops_text}"
+    )
+
+    return True, text
+
 def effects(effect, now, telegram_id, uses_left, expires_at):
     if "uses" in effect:
         uses_left = effect["uses"]
