@@ -20,17 +20,9 @@ farm_data = {
         "price": 8000
     }
 }
-farm_sellable = {
-    "تخم مرغ": {
-        "base_price": 100
-    },
-    "تخم مرغ": {
-        "base_price": 180
-    },
-    "تخم مرغ": {
-        "base_price": 300
-    },
-    "تخم مرغ": {
-        "base_price": 500
-    }
-}
+farm_sellable = [
+    {"name": "تخم مرغ", "base_price": 100},
+    {"name": "شیر", "base_price": 180},
+    {"name": "عسل", "base_price": 300},
+    {"name": "گیاه دارویی", "base_price": 500}
+]
