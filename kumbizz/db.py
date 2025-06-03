@@ -850,3 +850,28 @@ def claim_mission_rewards(telegram_id):
 def ensure_user(telegram_id):
     cursor.execute("INSERT OR IGNORE INTO users (telegram_id) VALUES (?)", (telegram_id,))
     conn.commit()
+
+import datetime
+
+def can_claim_reward(telegram_id, reward_type):
+    cursor.execute(f"SELECT last_{reward_type} FROM users WHERE telegram_id=?", (telegram_id,))
+    row = cursor.fetchone()
+    now = datetime.datetime.utcnow()
+
+    if not row or not row[0]:
+        return True
+
+    last_time = datetime.datetime.strptime(row[0], "%Y-%m-%d")
+
+    if reward_type == "daily":
+        return now.date() > last_time.date()
+    elif reward_type == "weekly":
+        return now.isocalendar()[1] > last_time.isocalendar()[1] or now.year > last_time.year
+    elif reward_type == "monthly":
+        return now.month > last_time.month or now.year > last_time.year
+    return False
+
+def update_reward_claim_time(telegram_id, reward_type):
+    now = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+    cursor.execute(f"UPDATE users SET last_{reward_type} = ? WHERE telegram_id=?", (now, telegram_id))
+    conn.commit()
