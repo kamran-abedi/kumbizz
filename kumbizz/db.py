@@ -869,3 +869,11 @@ def update_reward_claim_time(telegram_id, reward_type):
     cursor.execute(f"UPDATE users SET last_{reward_type} = ? WHERE telegram_id=?", (now, telegram_id))
     conn.commit()
 
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS inventory (
+        telegram_id INTEGER,
+        action TEXT,
+        cooldown_until INTEGER,
+        PRIMARY KEY (telegram_id)
+    )
+    """)
