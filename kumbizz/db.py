@@ -452,7 +452,6 @@ def mine_resources(telegram_id):
     return True, f"از معدنت استخراج کردی:\n{result_text} +{xp_gain}XP"
 
 import datetime
-from db import cursor
 from mine_items import mine_settings, mine_drops
 
 def get_mine_status(telegram_id):
