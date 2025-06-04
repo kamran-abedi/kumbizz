@@ -870,10 +870,10 @@ def update_reward_claim_time(telegram_id, reward_type):
     conn.commit()
 
 cursor.execute("""
-    CREATE TABLE IF NOT EXISTS inventory (
+    CREATE TABLE IF NOT EXISTS cooldowns (
         telegram_id INTEGER,
         action TEXT,
         cooldown_until INTEGER,
-        PRIMARY KEY (telegram_id)
+        PRIMARY KEY (telegram_id, action)
     )
     """)
