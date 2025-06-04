@@ -564,6 +564,7 @@ def harvest_farm(telegram_id):
         product = unit_info["product"]
         for i in range(qty):
             add_item(telegram_id, product)
+            xp_gain += 10
         total_collected.append(f"{product} × {qty}")
 
         cursor.execute("""
@@ -571,7 +572,7 @@ def harvest_farm(telegram_id):
             WHERE telegram_id=? AND unit_type=?
         """, (now.strftime("%Y-%m-%d %H:%M:%S"), telegram_id, unit_type))
 
-        xp_gain += 10
+        
 
     if not total_collected:
         return False, "هنوز چیزی برای برداشت آماده نیست."
