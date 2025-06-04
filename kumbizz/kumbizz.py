@@ -6,6 +6,7 @@ from fish_data import fish_list
 from mine_items import mine_drops
 import random
 import datetime
+import time
 
 bot = telebot.TeleBot("7235180534:AAH_3W3R07_AaHT_QN05RsOGS9Lk5no4ar4")
 init_db()
