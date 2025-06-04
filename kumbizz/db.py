@@ -66,16 +66,20 @@ def add_xp(telegram_id, xp_amount):
     with conn:
         cursor = conn.cursor()
         cursor.execute("SELECT xp, level FROM users WHERE telegram_id=?", (telegram_id,))
-    
-    with conn:
-        cursor = conn.cursor()
-        xp, level = cursor.fetchone()
-    
+        row = cursor.fetchone()
+
+    if not row:
+        # اگر کاربر وجود نداشت، یه مقدار پیش‌فرض تعریف کن
+        xp, level = 0, 1
+    else:
+        xp, level = row
+
     xp += xp_amount
     while xp >= xp_required(level):
         xp -= xp_required(level)
         level += 1
         register_mission_action(telegram_id, "level")
+
     with conn:
         cursor = conn.cursor()
         cursor.execute("UPDATE users SET xp=?, level=? WHERE telegram_id=?", (xp, level, telegram_id))
