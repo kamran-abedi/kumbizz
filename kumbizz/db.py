@@ -4,14 +4,15 @@ conn = sqlite3.connect("kumbizz.db", check_same_thread=False)
 
 def init_db():
     with conn:
-        conn.execute("""
+        cursor = conn.cursor()
+        cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             telegram_id INTEGER PRIMARY KEY,
             balance INTEGER DEFAULT 0
         )
         """)
         
-        conn.execute("""
+        cursor.execute("""
         CREATE TABLE IF NOT EXISTS inventory (
             telegram_id INTEGER,
             item_name TEXT,
@@ -22,18 +23,20 @@ def init_db():
 
 def add_user(telegram_id):
     with conn:
-        conn.execute("INSERT OR IGNORE INTO users (telegram_id) VALUES (?)", (telegram_id,))
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR IGNORE INTO users (telegram_id) VALUES (?)", (telegram_id,))
 
 def get_balance(telegram_id):
     with conn:
         cursor = conn.cursor()
-        conn.execute("SELECT balance FROM users WHERE telegram_id=?", (telegram_id,))
+        cursor.execute("SELECT balance FROM users WHERE telegram_id=?", (telegram_id,))
         result = cursor.fetchone()
         return result[0] if result else 0
 
 def update_balance(telegram_id, amount):
     with conn:
-        conn.execute("UPDATE users SET balance = balance + ? WHERE telegram_id=?", (amount, telegram_id))
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET balance = balance + ? WHERE telegram_id=?", (amount, telegram_id))
 
 def add_item(telegram_id, item_name):
     from items import shop_items
@@ -41,7 +44,8 @@ def add_item(telegram_id, item_name):
     default_hp = item.get("hp", 100) if item else 100
 
     with conn:
-        conn.execute("""
+        cursor = conn.cursor()
+        cursor.execute("""
             INSERT INTO inventory (telegram_id, item_name, quantity, hp)
             VALUES (?, ?, 1, ?)
             ON CONFLICT(telegram_id, item_name)
@@ -52,7 +56,7 @@ def add_item(telegram_id, item_name):
 def get_inventory(telegram_id):
     with conn:
         cursor = conn.cursor
-        conn.execute("SELECT item_name, quantity, hp FROM inventory WHERE telegram_id=?", (telegram_id,))
+        cursor.execute("SELECT item_name, quantity, hp FROM inventory WHERE telegram_id=?", (telegram_id,))
         return cursor.fetchall()  # [(item_name, qty, hp), ...]
 
 def xp_required(level):
@@ -60,7 +64,8 @@ def xp_required(level):
 
 def add_xp(telegram_id, xp_amount):
     with conn:
-        conn.execute("SELECT xp, level FROM users WHERE telegram_id=?", (telegram_id,))
+        cursor = conn.cursor()
+        cursor.execute("SELECT xp, level FROM users WHERE telegram_id=?", (telegram_id,))
     
     xp, level = 0, 0
     with conn:
@@ -73,28 +78,30 @@ def add_xp(telegram_id, xp_amount):
         level += 1
         register_mission_action(telegram_id, "level")
     with conn:
-        conn.execute("UPDATE users SET xp=?, level=? WHERE telegram_id=?", (xp, level, telegram_id))
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET xp=?, level=? WHERE telegram_id=?", (xp, level, telegram_id))
 
 def get_level(telegram_id):
     with conn:
-        conn.execute("SELECT level, xp FROM users WHERE telegram_id=?", (telegram_id,))
         cursor = conn.cursor()
+        cursor.execute("SELECT level, xp FROM users WHERE telegram_id=?", (telegram_id,))
         result = cursor.fetchone()
         return result if result else (1, 0)
 
 def has_item(telegram_id, item_name):
     with conn:
-        conn.execute("""
+        cursor = conn.cursor()
+        cursor.execute("""
             SELECT quantity FROM inventory
             WHERE telegram_id=? AND item_name=?;
         """, (telegram_id, item_name))
-        cursor = conn.cursor()
         result = cursor.fetchone()
         return result[0] > 0 if result else False
 
 def add_catch(telegram_id, name, quantity=1):
     with conn:
-        conn.execute("""
+        cursor = conn.cursor()
+        cursor.execute("""
             INSERT INTO inventory (telegram_id, item_name, quantity)
             VALUES (?, ?, ?)
             ON CONFLICT(telegram_id, item_name) DO UPDATE SET quantity = quantity + ?
@@ -125,8 +132,8 @@ def get_best_item_by_type(telegram_id, item_type):
 
 def reduce_item_hp(telegram_id, item_name, amount):
     with conn:
-        conn.execute("SELECT quantity, hp FROM inventory WHERE telegram_id=? AND item_name=?", (telegram_id, item_name))
         cursor = conn.cursor()
+        cursor.execute("SELECT quantity, hp FROM inventory WHERE telegram_id=? AND item_name=?", (telegram_id, item_name))
         result = cursor.fetchone()
         if not result:
             return
@@ -148,15 +155,17 @@ def reduce_item_hp(telegram_id, item_name, amount):
                 """, (default_hp, telegram_id, item_name))
         else:
             with conn:
-                conn.execute("DELETE FROM inventory WHERE telegram_id=? AND item_name=?", (telegram_id, item_name))
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM inventory WHERE telegram_id=? AND item_name=?", (telegram_id, item_name))
     else:
         with conn:
-            conn.execute("UPDATE inventory SET hp=? WHERE telegram_id=? AND item_name=?", (new_hp, telegram_id, item_name))
+            cursor = conn.cursor()
+            cursor.execute("UPDATE inventory SET hp=? WHERE telegram_id=? AND item_name=?", (new_hp, telegram_id, item_name))
 
 def sell_item(telegram_id, item_name, quantity, price_per_unit):
     with conn:
-        conn.execute("SELECT quantity FROM inventory WHERE telegram_id=? AND item_name=?", (telegram_id, item_name))
         cursor = conn.cursor()
+        cursor.execute("SELECT quantity FROM inventory WHERE telegram_id=? AND item_name=?", (telegram_id, item_name))
         result = cursor.fetchone()
         if not result or result[0] < quantity:
             return False
