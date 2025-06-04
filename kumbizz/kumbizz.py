@@ -32,6 +32,15 @@ def show_balance(message):
 def beg(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
+    now = int(time.time())
+    cooldown_until = get_cooldown(telegram_id, "work")
+
+    if now < cooldown_until:
+        remaining = cooldown_until - now
+        bot.reply_to(message, f"⏳ لطفاً {remaining} ثانیه دیگر صبر کن.")
+        return
+
+    set_cooldown(telegram_id, "beg", 30)
     chance = 90
     chance_percent = random.randint(1, 100)
     if(chance >= chance_percent):
@@ -107,8 +116,13 @@ def work(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
 
-    if is_on_cooldown(telegram_id, "work", 2):
-        return bot.reply_to(message, "⏳ باید ۲ دقیقه بین هر بار کار کردن فاصله بدی.")
+    now = int(time.time())
+    cooldown_until = get_cooldown(telegram_id, "work")
+
+    if now < cooldown_until:
+        remaining = cooldown_until - now
+        bot.reply_to(message, f"⏳ لطفاً {remaining} ثانیه دیگر صبر کن.")
+        return
     
     if not has_item(telegram_id, "کت و شلوار"):
         bot.reply_to(message, "برای کار کردن باید یه کت و شلوار بخری تا شبیه کارمندها بشی! (/shop)")
@@ -118,7 +132,7 @@ def work(message):
     reward = 200*level
     update_balance(telegram_id, reward)
     add_xp(telegram_id, 10)
-    set_cooldown(telegram_id, "work")
+    set_cooldown(telegram_id, "work",120)
     register_mission_action(telegram_id, "work")
     bot.reply_to(message, f"آفرین! کار کردی و {reward} کامبیزکوین گرفتی. +10 XP")
 
@@ -130,8 +144,13 @@ def fish(message):
     add_user(telegram_id)
     result = get_best_item_by_type(telegram_id, "fishing rod")
 
-    if is_on_cooldown(telegram_id, "fish", 1):
-        return bot.reply_to(message, "⏳ باید یک دقیقه بین هر بار ماهیگیری فاصله بدی.")
+    now = int(time.time())
+    cooldown_until = get_cooldown(telegram_id, "fish")
+
+    if now < cooldown_until:
+        remaining = cooldown_until - now
+        bot.reply_to(message, f"⏳ لطفاً {remaining} ثانیه دیگر صبر کن.")
+        return
 
     if not result:
         bot.reply_to(message, "نیاز به چوب ماهیگیری داری! برو از فروشگاه بخر.")
@@ -141,7 +160,7 @@ def fish(message):
     item_rarity = item.get("rarity", "common")
     multiplier = float(item.get("multiplier", 1.0))
     chance = item.get("chance", 50)
-    set_cooldown(telegram_id, "fish")
+    set_cooldown(telegram_id, "fish", 60)
 
     success = random.randint(1, 100) <= chance
     if not success:
@@ -172,8 +191,13 @@ def hunt(message):
     add_user(telegram_id)
     result = get_best_item_by_type(telegram_id, "weapon")
 
-    if is_on_cooldown(telegram_id, "hunt", 1):
-        return bot.reply_to(message, "⏳ باید یک دقیقه بین هر بار شکار فاصله بدی.")
+    now = int(time.time())
+    cooldown_until = get_cooldown(telegram_id, "hunt")
+
+    if now < cooldown_until:
+        remaining = cooldown_until - now
+        bot.reply_to(message, f"⏳ لطفاً {remaining} ثانیه دیگر صبر کن.")
+        return
 
     if not result:
         bot.reply_to(message, "نیاز به تفنگ داری! برو از فروشگاه بخر.")
@@ -183,7 +207,7 @@ def hunt(message):
     item_rarity = item.get("rarity", "common")
     multiplier = float(item.get("multiplier", 1.0))
     chance = item.get("chance", 50)
-    set_cooldown(telegram_id, "hunt")
+    set_cooldown(telegram_id, "hunt", 60)
 
     success = random.randint(1, 100) <= chance
     if not success:
