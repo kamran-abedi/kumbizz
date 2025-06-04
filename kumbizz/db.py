@@ -868,3 +868,14 @@ def update_reward_claim_time(telegram_id, reward_type):
     now = datetime.datetime.utcnow().strftime("%Y-%m-%d")
     cursor.execute(f"UPDATE users SET last_{reward_type} = ? WHERE telegram_id=?", (now, telegram_id))
     conn.commit()
+
+cursor.execute("DROP TABLE cooldowns;")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS cooldowns (
+    telegram_id INTEGER,
+    action TEXT,
+    cooldown_until INTEGER,
+    PRIMARY KEY (telegram_id, action)
+)
+""")
