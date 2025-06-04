@@ -497,28 +497,21 @@ def get_active_effect(telegram_id, effect_type):
 
     return {"value": val, "uses_left": uses}
 
-def set_cooldown(telegram_id, command):
-    now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-    cursor.execute("""
-        INSERT OR REPLACE INTO cooldowns (telegram_id, command, last_used)
-        VALUES (?, ?, ?)
-    """, (telegram_id, command, now))
-    conn.commit()
+import time
 
-import datetime
-
-def is_on_cooldown(telegram_id, command, cooldown_minutes):
-    cursor.execute("SELECT last_used FROM cooldowns WHERE telegram_id=? AND command=?", (telegram_id, command))
+def get_cooldown(telegram_id, action):
+    cursor.execute("SELECT cooldown_until FROM cooldowns WHERE telegram_id=? AND action=?", (telegram_id, action))
     row = cursor.fetchone()
+    return row[0] if row else 0
 
-    if not row:
-        return False  # هیچ‌وقت اجرا نشده
-
-    last_time = datetime.datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S")
-    now = datetime.datetime.utcnow()
-    if now - last_time < datetime.timedelta(minutes=cooldown_minutes):
-        return True
-    return False
+def set_cooldown(telegram_id, action, cooldown_seconds):
+    cooldown_until = int(time.time()) + cooldown_seconds
+    cursor.execute("""
+        INSERT INTO cooldowns (telegram_id, action, cooldown_until)
+        VALUES (?, ?, ?)
+        ON CONFLICT(telegram_id, action) DO UPDATE SET cooldown_until=excluded.cooldown_until
+    """, (telegram_id, action, cooldown_until))
+    conn.commit()
 
 def buy_farm_unit(telegram_id, unit_type):
     from farm_data import farm_data
