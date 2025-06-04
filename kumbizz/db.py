@@ -571,12 +571,13 @@ def harvest_farm(telegram_id):
             WHERE telegram_id=? AND unit_type=?
         """, (now.strftime("%Y-%m-%d %H:%M:%S"), telegram_id, unit_type))
 
+        xp_gain += 10
+
     if not total_collected:
         return False, "هنوز چیزی برای برداشت آماده نیست."
 
     # حالا xp بده بعد از حلقه
     farmer_level, _ = get_level(telegram_id) 
-    xp_gain += 10 * farmer_level
     add_xp(telegram_id, xp_gain)
 
     conn.commit()
