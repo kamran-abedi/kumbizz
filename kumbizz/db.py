@@ -581,7 +581,7 @@ def harvest_farm(telegram_id):
 
     conn.commit()
     result_text = "\n".join(f"• {line}" for line in total_collected)
-    return True, f"🌾 برداشت موفق:\n{result_text}"
+    return True, f"🌾 برداشت موفق:\n{result_text} +{xp_gain}XP"
 
 def farm_status(telegram_id):
     
