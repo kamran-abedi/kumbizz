@@ -34,7 +34,7 @@ def beg(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
     now = int(time.time())
-    cooldown_until = get_cooldown(telegram_id, "work")
+    cooldown_until = get_cooldown(telegram_id, "beg")
 
     if now < cooldown_until:
         remaining = cooldown_until - now
