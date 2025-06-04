@@ -131,11 +131,12 @@ def work(message):
 
     level, xp = get_level(telegram_id)
     reward = 200*level
+    gain_xp = 10 * level
     update_balance(telegram_id, reward)
-    add_xp(telegram_id, 10)
+    add_xp(telegram_id, gain_xp)
     set_cooldown(telegram_id, "work",120)
     register_mission_action(telegram_id, "work")
-    bot.reply_to(message, f"آفرین! کار کردی و {reward} کامبیزکوین گرفتی. +10 XP")
+    bot.reply_to(message, f"آفرین! کار کردی و {reward} کامبیزکوین گرفتی. +{gain_xp}XP")
 
 from fish_data import fish_list
 
