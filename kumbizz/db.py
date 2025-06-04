@@ -55,7 +55,7 @@ def add_item(telegram_id, item_name):
 
 def get_inventory(telegram_id):
     with conn:
-        cursor = conn.cursor
+        cursor = conn.cursor()
         cursor.execute("SELECT item_name, quantity, hp FROM inventory WHERE telegram_id=?", (telegram_id,))
         return cursor.fetchall()  # [(item_name, qty, hp), ...]
 
