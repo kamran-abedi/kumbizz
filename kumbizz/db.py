@@ -710,49 +710,59 @@ def get_market_list(filter_text=None):
         ORDER BY id ASC
         LIMIT 10
     """
-    cursor.execute(query, params)
-    rows = cursor.fetchall()
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
     return True, rows
 
 def trade_from_market(telegram_id, trade_id):
-    cursor.execute("SELECT item_name, price, seller_id FROM market WHERE id=?", (trade_id,))
-    row = cursor.fetchone()
-    if not row:
-        return False, "آگهی پیدا نشد."
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT item_name, price, seller_id FROM market WHERE id=?", (trade_id,))
+        row = cursor.fetchone()
+        if not row:
+            return False, "آگهی پیدا نشد."
 
     item, price, seller = row
 
     if telegram_id == seller:
         return False, "نمی‌تونی آیتم خودتو بخری!"
 
-    cursor.execute("SELECT balance FROM users WHERE telegram_id=?", (telegram_id,))
-    balance = cursor.fetchone()[0]
-    if balance < price:
-        return False, "پول کافی برای خرید نداری."
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT balance FROM users WHERE telegram_id=?", (telegram_id,))
+        balance = cursor.fetchone()[0]
+        if balance < price:
+            return False, "پول کافی برای خرید نداری."
 
     # انتقال
     update_balance(telegram_id, -price)
     update_balance(seller, price)
     add_item(telegram_id, item)
 
-    cursor.execute("DELETE FROM market WHERE id=?", (trade_id,))
-    conn.commit()
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM market WHERE id=?", (trade_id,))
 
     return True, f"آیتم «{item}» رو با {price} کوین خریدی!"
 
 def cancel_market_item(telegram_id, trade_id):
-    cursor.execute("SELECT item_name, seller_id FROM market WHERE id=?", (trade_id,))
-    row = cursor.fetchone()
-    if not row:
-        return False, "آگهی پیدا نشد."
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT item_name, seller_id FROM market WHERE id=?", (trade_id,))
+        row = cursor.fetchone()
+        if not row:
+            return False, "آگهی پیدا نشد."
 
     item, seller = row
     if seller != telegram_id:
         return False, "فقط فروشنده می‌تونه آگهی رو حذف کنه."
 
     add_item(telegram_id, item)
-    cursor.execute("DELETE FROM market WHERE id=?", (trade_id,))
-    conn.commit()
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM market WHERE id=?", (trade_id,))
 
     return True, f"آگهی مربوط به «{item}» حذف شد و آیتم بهت برگشت."
 
