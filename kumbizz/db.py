@@ -67,7 +67,6 @@ def add_xp(telegram_id, xp_amount):
         cursor = conn.cursor()
         cursor.execute("SELECT xp, level FROM users WHERE telegram_id=?", (telegram_id,))
     
-    xp, level = 0, 0
     with conn:
         cursor = conn.cursor()
         xp, level = cursor.fetchone()
