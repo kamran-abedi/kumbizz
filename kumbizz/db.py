@@ -862,3 +862,54 @@ def update_reward_claim_time(telegram_id, reward_type):
     with conn:
         cursor = conn.cursor()
         cursor.execute(f"UPDATE users SET last_{reward_type} = ? WHERE telegram_id=?", (now, telegram_id))
+
+import time
+
+def get_kumbizz_status(telegram_id):
+    with conn:
+        cur = conn.cursor()
+        cur.execute("SELECT kumbizz_level, last_kumbizz_claim FROM users WHERE telegram_id=?", (telegram_id,))
+        row = cur.fetchone()
+        if row:
+            level, last = row
+            return level or 0, last or 0
+        return 0, 0
+
+def claim_kumbizz(telegram_id):
+    level, last_claim = get_kumbizz_status(telegram_id)
+    now = int(time.time())
+
+    if level == 0:
+        return False, "🤖 هنوز کامبیز نداری! با دستور /upgradekumbizz اونو بساز."
+
+    elapsed = now - last_claim
+    if elapsed < 60:
+        return False, f"⏳ حداقل باید ۶۰ ثانیه از برداشت قبلی گذشته باشه."
+
+    capped = min(elapsed, 10800)  # سقف دریافت = ۳ ساعت
+    income = capped * level
+
+    update_balance(telegram_id, income)
+    with conn:
+        conn.execute("UPDATE users SET last_kumbizz_claim=? WHERE telegram_id=?", (now, telegram_id))
+    return True, f"✅ {income} کام‌کوین از کامبیز دریافت شد! (طی {capped // 60} دقیقه)"
+
+def upgrade_kumbizz(telegram_id):
+    level, _ = get_kumbizz_status(telegram_id)
+    next_level = level + 1
+    price = 1000 * (2 ** level)
+    balance = get_balance(telegram_id)
+
+    if balance < price:
+        return False, f"💰 برای ارتقاء به سطح {next_level} باید {price} سکه داشته باشی."
+
+    update_balance(telegram_id, -price)
+    with conn:
+        conn.execute("UPDATE users SET kumbizz_level=? WHERE telegram_id=?", (next_level, telegram_id))
+    return True, f"🎉 کامبیز به سطح {next_level} ارتقاء یافت! حالا در هر ثانیه {next_level} سکه تولید می‌کنه."
+
+with conn:
+    cursor = conn.cursor()
+    cursor.execute("""ALTER TABLE users ADD COLUMN kumbizz_level INTEGER DEFAULT 0;
+ALTER TABLE users ADD COLUMN last_kumbizz_claim INTEGER DEFAULT 0;
+""")
