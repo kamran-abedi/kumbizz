@@ -3,7 +3,7 @@ mine_drops = [
     "level_required": 1,
     "chance": 40,
     "base_price": 150},
-    {"name": "رغال سنگ",
+    {"name": "زغال سنگ",
     "level_required": 1,
     "chance": 30,
     "base_price": 250},
