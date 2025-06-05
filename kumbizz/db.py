@@ -413,7 +413,7 @@ def get_mine_status(telegram_id):
         if not row:
             return 1, 0  # سطح 1 و زمان پیش‌فرض
         level, last = row
-        return level, last or 0
+        return level, int(last or 0)
 
 def effects(effect, now, telegram_id, uses_left, expires_at):
     if "uses" in effect:
