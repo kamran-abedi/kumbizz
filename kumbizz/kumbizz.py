@@ -420,13 +420,17 @@ def handle_buy_mine(message):
     success, msg = buy_mine(telegram_id)
     bot.reply_to(message, msg)
 
+from db import get_mine_status, perform_mine
+
 @bot.message_handler(commands=["mine"])
 def handle_mine(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
-    success, msg = mine_resources(telegram_id)
-    register_mission_action(telegram_id, "mine")
-    bot.reply_to(message, msg)
+    mine_level, last_mine = get_mine_status(telegram_id)
+    success, response = perform_mine(telegram_id, mine_level, last_mine)
+    if success:
+        register_mission_action(telegram_id, "mine")
+    bot.reply_to(message, response)
 
 from recipes import craft_recipes
 from db import get_inventory, consume_item, add_item
@@ -458,19 +462,37 @@ def handle_craft(message):
     add_item(telegram_id, item_name)
     bot.reply_to(message, f"با موفقیت «{item_name}» ساخته شد!")
 
-@bot.message_handler(commands=["upgrade_mine"])
+@bot.message_handler(commands=["upgrademine"])
 def handle_upgrade_mine(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
-    success, msg = upgrade_mine(telegram_id)
+    mine_level, _ = get_mine_status(telegram_id)
+    success, msg = upgrade_mine(telegram_id, mine_level)
     bot.reply_to(message, msg)
 
 @bot.message_handler(commands=["minestatus"])
 def handle_mine_status(message):
     telegram_id = get_id(message)
-    from db import get_mine_status
-    success, msg = get_mine_status(telegram_id)
-    bot.reply_to(message, msg, parse_mode="HTML")
+    add_user(telegram_id)
+    mine_level, last_mine = get_mine_status(telegram_id)
+
+    from mine_items import mine_data
+
+    level_data = mine_data.get(mine_level, {})
+    cooldown = level_data.get("cooldown", 6)
+    count = level_data.get("count", 1)
+    unlocks = level_data.get("unlocks", [])
+
+    text = f"""📊 وضعیت معدن شما:
+
+🔸 سطح: {mine_level}
+⏳ کول‌داون استخراج: هر {cooldown} ساعت
+📦 مقدار استخراج در هر بار: {count}
+📍 منابع آزادشده در این سطح:
+{', '.join(unlocks)}
+"""
+
+    bot.reply_to(message, text)
 
 @bot.message_handler(commands=["cook"])
 def handle_cook(message):
