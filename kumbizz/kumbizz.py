@@ -739,6 +739,24 @@ def handle_monthly(message):
     update_reward_claim_time(telegram_id, "monthly")
     bot.reply_to(message, "🎁 پاداش ماهانه گرفتی: 100000 سکه!")
 
+from db import claim_kumbizz
+
+@bot.message_handler(commands=["kumbizz"])
+def handle_kumbizz(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+    success, msg = claim_kumbizz(telegram_id)
+    bot.reply_to(message, msg)
+    
+from db import upgrade_kumbizz
+
+@bot.message_handler(commands=["upgradekumbizz"])
+def handle_upgrade_kumbizz(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+    success, msg = upgrade_kumbizz(telegram_id)
+    bot.reply_to(message, msg)
+
 @bot.message_handler(commands=["commands", "help"])
 def handle_commands(message):
     text = """
@@ -747,6 +765,9 @@ def handle_commands(message):
 /daily جایزه روزانه
 /weekly جایزه هفتگی
 /monthly جایزه ماهانه
+
+/kumbizz دریافت پول حاصل از کار کامبیز
+/upgradekumbizz ارتقای کامبیز
 
 /balance - مشاهده موجودی سکه  
 /inventory - مشاهده آیتم‌های در اختیار  
@@ -769,9 +790,6 @@ def handle_commands(message):
 /farmstatus نمایش دادن اطلاعات مزرعه
 /buy_farm [نام آیتم] خریدن اقلام مرتبط با مزرعه
 /farm_shop بازار اقلام مرتبط با مزرعه
-
-🎯 /missions - دیدن ماموریت‌های روز  
-/claimmissions - دریافت جوایز ماموریت‌ها
 
 🏦 /deposit [مقدار] - واریز به بانک  
 /withdraw [مقدار] - برداشت از بانک  
