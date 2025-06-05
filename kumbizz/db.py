@@ -910,6 +910,6 @@ def upgrade_kumbizz(telegram_id):
 
 with conn:
     cursor = conn.cursor()
-    cursor.execute("""ALTER TABLE users ADD COLUMN kumbizz_level INTEGER DEFAULT 0;
-ALTER TABLE users ADD COLUMN last_kumbizz_claim INTEGER DEFAULT 0;
-""")
+    cursor.execute("ALTER TABLE users ADD COLUMN kumbizz_level INTEGER DEFAULT 0;")
+    cursor.execute("ALTER TABLE users ADD COLUMN last_kumbizz_claim INTEGER DEFAULT 0;")
+
