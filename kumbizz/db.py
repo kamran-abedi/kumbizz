@@ -351,178 +351,69 @@ def buy_mine(telegram_id):
 import random, datetime
 from mine_items import mine_drops
 
-def mine_resources(telegram_id):
+def upgrade_mine(telegram_id, current_level):
+    if current_level >= 6:
+        return False, "⛏ معدن شما در بالاترین سطحه."
+
+    next_level = current_level + 1
+    price = mine_data[next_level]["level_price"]
+    balance = get_balance(telegram_id)
+
+    if balance < price:
+        return False, f"💰 برای ارتقا به سطح {next_level} نیاز به {price} سکه داری."
+
+    update_balance(telegram_id, -price)
     with conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT has_mine, last_mine FROM users WHERE telegram_id=?", (telegram_id,))
-        row = cursor.fetchone()
-        if not row or not row[0]:
-            return False, "تو هنوز معدنی نخریدی!"
+        conn.execute("UPDATE users SET mine_level=? WHERE telegram_id=?", (next_level, telegram_id))
+    return True, f"✅ معدن شما به سطح {next_level} ارتقا یافت!"
 
-        last_mine = row[1]
-    now = datetime.datetime.utcnow()
-    cooldown = datetime.timedelta(hours=6)
+import random
+import time
+from mine_items import mine_data, mine_drops
 
-    if last_mine:
-        last_time = datetime.datetime.strptime(last_mine, "%Y-%m-%d %H:%M:%S")
-        if now - last_time < cooldown:
-            remaining = cooldown - (now - last_time)
-            mins = int(remaining.total_seconds() // 60)
-            return False, f"باید {mins} دقیقه دیگه صبر کنی تا دوباره بتونی استخراج کنی."
+def perform_mine(telegram_id, mine_level, last_mine_time):
+    now = int(time.time())
+    cooldown_hours = mine_data[mine_level]["cooldown"]
+    cooldown_seconds = cooldown_hours * 3600
 
-    # استخراج تصادفی آیتم
-    choices = []
-    for drop in mine_drops:
-        choices.extend([drop["name"]] * int(drop["chance"] * 10))  # دقت بیشتر
-    result = random.choice(choices)
+    if now - last_mine_time < cooldown_seconds:
+        remaining = cooldown_seconds - (now - last_mine_time)
+        return False, f"⛏ هنوز {int(remaining // 60)} دقیقه تا نوبت بعدی مونده."
 
-    from items import shop_items
-    if result not in shop_items:
-        shop_items[result] = {
-            "price": 0,
-            "type": "material",
-            "description": f"منبع معدنی: {result}"
-        }
+    # فیلتر منابع بر اساس سطح
+    available_drops = [drop for drop in mine_drops if drop["level_required"] <= mine_level]
+    total_chance = sum(d["chance"] for d in available_drops)
 
-    add_item(telegram_id, result)
+    mined_items = []
+    for _ in range(mine_data[mine_level]["count"]):
+        pick = random.randint(1, total_chance)
+        current = 0
+        for drop in available_drops:
+            current += drop["chance"]
+            if pick <= current:
+                mined_items.append(drop["name"])
+                add_item(telegram_id, drop["name"])
+                break
 
+    # بروزرسانی زمان آخرین استخراج
     with conn:
-        cursor = conn.cursor()
-        cursor.execute("UPDATE users SET last_mine = ? WHERE telegram_id=?", (now.strftime("%Y-%m-%d %H:%M:%S"), telegram_id))
+        conn.execute("UPDATE users SET last_mine=? WHERE telegram_id=?", (now, telegram_id))
 
-    return True, f"تو از معدنت یک «{result}» استخراج کردی!"
-
-def upgrade_mine(telegram_id):
-    with conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT has_mine, mine_level, balance FROM users WHERE telegram_id=?", (telegram_id,))
-        row = cursor.fetchone()
-        if not row or not row[0]:
-            return False, "اول باید معدنی داشته باشی!"
-    
-        level, balance = row[1], row[2]
-    if level >= 5:
-        return False, "معدنت به بالاترین سطح رسیده."
-
-    cost = 15000 + (level * 5000)
-    if balance < cost:
-        return False, f"برای ارتقاء به سطح {level + 1}، به {cost} کوین نیاز داری."
-
-    with conn:
-        cursor = conn.cursor()
-        cursor.execute("UPDATE users SET balance = balance - ?, mine_level = mine_level + 1 WHERE telegram_id=?",
-                       (cost, telegram_id))
-        
-    return True, f"معدنت به سطح {level + 1} ارتقاء یافت!"
-
-from mine_items import mine_settings
-
-def mine_resources(telegram_id):
-    with conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT has_mine, last_mine, mine_level FROM users WHERE telegram_id=?", (telegram_id,))
-        row = cursor.fetchone()
-        if not row or not row[0]:
-            return False, "تو هنوز معدنی نخریدی!"
-
-        last_mine = row[1]
-        mine_level = row[2] or 1
-    settings = mine_settings.get(mine_level, mine_settings[1])
-
-    now = datetime.datetime.utcnow()
-    cooldown = datetime.timedelta(hours=settings["cooldown"])
-
-    if last_mine:
-        last_time = datetime.datetime.strptime(last_mine, "%Y-%m-%d %H:%M:%S")
-        if now - last_time < cooldown:
-            remaining = cooldown - (now - last_time)
-            mins = int(remaining.total_seconds() // 60)
-            return False, f"باید {mins} دقیقه دیگه صبر کنی تا دوباره استخراج کنی."
-
-    # استخراج چندتایی
-    from mine_items import mine_drops
-    from items import shop_items
-    collected = []
-
-    choices = []
-    for drop in mine_drops:
-        choices.extend([drop["name"]] * int(drop["chance"] * 10))
-
-    for _ in range(settings["count"]):
-        result = random.choice(choices)
-        add_item(telegram_id, result)
-        collected.append(result)
-
-    with conn:
-        cursor = conn.cursor()
-        cursor.execute("UPDATE users SET last_mine = ? WHERE telegram_id=?", (now.strftime("%Y-%m-%d %H:%M:%S"), telegram_id))
-
-    player_level, ksshr = get_level(telegram_id)
-    xp_gain = 10 * mine_level * player_level
-    add_xp(telegram_id, xp_gain)
-    result_text = "\n".join(f"• {item}" for item in collected)
-    return True, f"از معدنت استخراج کردی:\n{result_text} +{xp_gain}XP"
+    result_text = "\n".join(f"• {item}" for item in mined_items)
+    return True, f"✅ استخراج موفق:\n{result_text}"
 
 import datetime
-from mine_items import mine_settings, mine_drops
+from mine_items import mine_data, mine_drops
 
 def get_mine_status(telegram_id):
     with conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT has_mine, mine_level, last_mine FROM users WHERE telegram_id=?", (telegram_id,))
+        cursor.execute("SELECT mine_level, last_mine FROM users WHERE telegram_id=?", (telegram_id,))
         row = cursor.fetchone()
-
         if not row:
-            return False, "❌ شما هنوز ثبت نشده‌اید. لطفاً با /start شروع کنید."
-
-    has_mine, mine_level, last_mine = row
-    if not has_mine:
-        return False, "⛏ شما هنوز معدن ندارید. برای شروع باید معدن بخرید یا ارتقا بدی."
-
-    # اطلاعات سطح
-    mine_info = mine_settings.get(mine_level)
-    if not mine_info:
-        return False, "❌ اطلاعات سطح معدن شما یافت نشد."
-
-    cooldown_hours = mine_info["cooldown"]
-    cooldown = datetime.timedelta(hours=cooldown_hours)
-    now = datetime.datetime.utcnow()
-
-    # محاسبه زمان باقی‌مانده
-    if last_mine:
-        try:
-            last_time = datetime.datetime.strptime(last_mine, "%Y-%m-%d %H:%M:%S")
-        except ValueError:
-            return False, "❌ خطا در ثبت زمان آخرین استخراج."
-        delta = now - last_time
-        if delta < cooldown:
-            remaining = cooldown - delta
-            hours = remaining.seconds // 3600
-            minutes = (remaining.seconds // 60) % 60
-            status = f"⏳ {hours} ساعت و {minutes} دقیقه تا استخراج بعدی"
-        else:
-            status = "✅ آماده استخراج"
-    else:
-        status = "✅ آماده استخراج"
-
-    # محصولات نمایشی
-    available_drops = []
-    for drop in mine_drops:
-        chance = drop.get("chance", 0)
-        if chance > 0:
-            available_drops.append(drop["name"])
-
-    drops_text = ", ".join(available_drops)
-
-    text = (
-        f"⛏ <b>وضعیت معدن شما:</b>\n"
-        f"• سطح: {mine_level}\n"
-        f"• ظرفیت برداشت: {mine_info['count']} آیتم\n"
-        f"• وضعیت: {status}\n"
-        f"• محصولات ممکن: {drops_text}"
-    )
-
-    return True, text
+            return 1, 0  # سطح 1 و زمان پیش‌فرض
+        level, last = row
+        return level, last or 0
 
 def effects(effect, now, telegram_id, uses_left, expires_at):
     if "uses" in effect:
