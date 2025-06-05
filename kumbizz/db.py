@@ -907,9 +907,3 @@ def upgrade_kumbizz(telegram_id):
     with conn:
         conn.execute("UPDATE users SET kumbizz_level=? WHERE telegram_id=?", (next_level, telegram_id))
     return True, f"🎉 کامبیز به سطح {next_level} ارتقاء یافت! حالا در هر ثانیه {next_level} سکه تولید می‌کنه."
-
-with conn:
-    cursor = conn.cursor()
-    cursor.execute("ALTER TABLE users ADD COLUMN kumbizz_level INTEGER DEFAULT 0;")
-    cursor.execute("ALTER TABLE users ADD COLUMN last_kumbizz_claim INTEGER DEFAULT 0;")
-
