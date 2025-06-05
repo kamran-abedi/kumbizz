@@ -399,8 +399,12 @@ def perform_mine(telegram_id, mine_level, last_mine_time):
     with conn:
         conn.execute("UPDATE users SET last_mine=? WHERE telegram_id=?", (now, telegram_id))
 
+    user_level, _ = get_level(telegram_id)
+    xp_gain = 10 * user_level * mine_level
+    add_xp(telegram_id, xp_gain)
+
     result_text = "\n".join(f"• {item}" for item in mined_items)
-    return True, f"✅ استخراج موفق:\n{result_text}"
+    return True, f"✅ استخراج موفق:\n{result_text}\n+{xp_gain}XP"
 
 import datetime
 from mine_items import mine_data, mine_drops
