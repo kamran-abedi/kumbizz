@@ -22,6 +22,7 @@ def init_db():
         """)
 
 with conn:
+    cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS gamble_state (
         telegram_id INTEGER PRIMARY KEY,
         amount INTEGER,
