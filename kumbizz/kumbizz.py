@@ -805,6 +805,48 @@ def handle_take(message):
     end_gamble(telegram_id)
     bot.reply_to(message, f"💰 مبلغ {amount} با موفقیت برداشت شد. مبارک باشه!")
 
+@bot.message_handler(commands=["slot"])
+def handle_slot(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+
+    parts = message.text.split()
+    if len(parts) < 2 or not parts[1].isdigit():
+        return bot.reply_to(message, "💰 مقدار شرط رو وارد کن. مثلا:\n/slot 500")
+
+    bet = int(parts[1])
+    if bet <= 0 or get_balance(telegram_id) < bet:
+        return bot.reply_to(message, "❌ موجودی کافی نداری.")
+
+    update_balance(telegram_id, -bet)
+
+    emojis = ['🍒', '🍋', '🍇', '💎', '💀']
+    result = [random.choice(emojis) for _ in range(3)]
+
+    counts = {}
+    for e in result:
+        counts[e] = counts.get(e, 0) + 1
+
+    max_count = max(counts.values())
+    reward = 0
+    outcome = "💥 باختی!"
+
+    if max_count == 3:
+        if result[0] == "💎":
+            reward = bet * 15
+            outcome = "💎 سه تا الماس! برد ×15"
+        else:
+            reward = bet * 8
+            outcome = f"✅ سه تا {result[0]}! برد ×8"
+    elif max_count == 2:
+        reward = int(bet * 1.5)
+        outcome = f"🪙 دو تا {max(counts, key=counts.get)}! برد ×1.5"
+
+    if reward > 0:
+        update_balance(telegram_id, reward)
+
+    bot.reply_to(message, f"🎰 نتیجه:\n{' '.join(result)}\n\n{outcome}\n{'🏆 +'+str(reward)+' سکه' if reward else '😢 شرط از دست رفت'}")
+
 @bot.message_handler(commands=["commands", "help"])
 def handle_commands(message):
     text = """
