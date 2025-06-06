@@ -847,6 +847,34 @@ def handle_slot(message):
 
     bot.reply_to(message, f"🎰 نتیجه:\n{' '.join(result)}\n\n{outcome}\n{'🏆 +'+str(reward)+' سکه' if reward else '😢 شرط از دست رفت'}")
 
+@bot.message_handler(commands=["guess"])
+def handle_guess(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+
+    parts = message.text.split()
+    if len(parts) < 3 or not parts[1].isdigit() or not parts[2].isdigit():
+        return bot.reply_to(message, "🎯 استفاده درست:\n/guess [عدد 1 تا 10] [مقدار شرط]")
+
+    guess = int(parts[1])
+    bet = int(parts[2])
+
+    if not 1 <= guess <= 10:
+        return bot.reply_to(message, "❌ عدد حدس باید بین 1 تا 10 باشه.")
+
+    if bet <= 0 or get_balance(telegram_id) < bet:
+        return bot.reply_to(message, "❌ موجودی کافی نداری یا مقدار شرط نامعتبره.")
+
+    update_balance(telegram_id, -bet)
+    number = random.randint(1, 10)
+
+    if guess == number:
+        reward = bet * 10
+        update_balance(telegram_id, reward)
+        bot.reply_to(message, f"🎯 عدد صحیح: {number}\n✅ حدس درست! +{reward} کام‌کوین")
+    else:
+        bot.reply_to(message, f"🎯 عدد صحیح: {number}\n💥 حدست اشتباه بود! شرط از دست رفت.")
+
 @bot.message_handler(commands=["commands", "help"])
 def handle_commands(message):
     text = """
