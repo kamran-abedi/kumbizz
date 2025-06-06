@@ -48,10 +48,11 @@ def beg(message):
         level, xp = get_level(telegram_id)
         amount = random.randint(10, 100)*(level)
         update_balance(telegram_id, amount)
-        bot.reply_to(message, f"یکی دلش سوخت و بهت {amount} تا کامکوین داد!")
+        xp_gain = 5 * level
+        add_xp(telegram_id, xp_gain)
+        bot.reply_to(message, f"یکی دلش سوخت و بهت {amount} تا کامکوین داد! +5XP")
     else:
         bot.reply_to(message, "کسی دلش به حالت نسوخت!")
-    add_xp(telegram_id, 5)
 
 @bot.message_handler(commands=["shop"])
 def shop(message):
@@ -400,8 +401,8 @@ def handle_rob(message):
             msg_effect = "(کیف زرهی مقدار دزدی رو نصف کرد)"
 
     # محاسبه مقدار دزدی
-    steal_amount = random.randint(int(victim_balance * 0.05), int(victim_balance * 0.15))
-    steal_amount = min(steal_amount, 5000)
+    steal_amount = random.randint(int(victim_balance * 0.1), int(victim_balance * 0.25))
+    steal_amount = min(steal_amount, 25000)
 
     update_balance(victim_id, -steal_amount)
     update_balance(thief_id, steal_amount)
