@@ -907,3 +907,23 @@ def upgrade_kumbizz(telegram_id):
     with conn:
         conn.execute("UPDATE users SET kumbizz_level=? WHERE telegram_id=?", (next_level, telegram_id))
     return True, f"🎉 کامبیز به سطح {next_level} ارتقاء یافت! حالا در هر ثانیه {next_level} سکه تولید می‌کنه."
+
+def start_double_or_nothing(telegram_id, amount):
+    with conn:
+        conn.execute("INSERT OR REPLACE INTO gamble_state (telegram_id, amount, active) VALUES (?, ?, 1)",
+                     (telegram_id, amount))
+
+def get_gamble_state(telegram_id):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT amount, active FROM gamble_state WHERE telegram_id=?", (telegram_id,))
+        row = cursor.fetchone()
+        return row if row else (0, 0)
+
+def update_gamble_amount(telegram_id, amount):
+    with conn:
+        conn.execute("UPDATE gamble_state SET amount=? WHERE telegram_id=?", (amount, telegram_id))
+
+def end_gamble(telegram_id):
+    with conn:
+        conn.execute("UPDATE gamble_state SET active=0 WHERE telegram_id=?", (telegram_id,))
