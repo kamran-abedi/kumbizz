@@ -21,14 +21,6 @@ def init_db():
         )
         """)
 
-with conn:
-    cursor = conn.cursor()
-    cursor.execute("""CREATE TABLE IF NOT EXISTS gamble_state (
-        telegram_id INTEGER PRIMARY KEY,
-        amount INTEGER,
-        active INTEGER DEFAULT 0
-    );""")
-
 def add_user(telegram_id):
     with conn:
         cursor = conn.cursor()
