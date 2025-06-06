@@ -761,6 +761,50 @@ def handle_upgrade_kumbizz(message):
     success, msg = upgrade_kumbizz(telegram_id)
     bot.reply_to(message, msg)
 
+from db import start_double_or_nothing, get_gamble_state, update_gamble_amount, end_gamble
+
+@bot.message_handler(commands=["double"])
+def handle_double(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+    parts = message.text.split()
+    if len(parts) < 2 or not parts[1].isdigit():
+        return bot.reply_to(message, "💰 مقدار شرط رو وارد کن. مثلا:\n/double 1000")
+
+    amount = int(parts[1])
+    if amount <= 0 or get_balance(telegram_id) < amount:
+        return bot.reply_to(message, "❌ موجودی کافی نداری.")
+
+    update_balance(telegram_id, -amount)
+    start_double_or_nothing(telegram_id, amount)
+    bot.reply_to(message, f"🎰 شروع شد! شرط اولیه {amount} کامکوین.\nارسال /continue برای ادامه یا /take برای برداشت.")
+
+@bot.message_handler(commands=["continue"])
+def handle_continue(message):
+    telegram_id = get_id(message)
+    amount, active = get_gamble_state(telegram_id)
+    if not active:
+        return bot.reply_to(message, "❌ بازی فعالی نداری. از /double شروع کن.")
+
+    if random.choice([True, False]):
+        new_amount = amount * 2
+        update_gamble_amount(telegram_id, new_amount)
+        bot.reply_to(message, f"✅ بردی! مبلغ فعلی: {new_amount}\nادامه بده با /continue یا پول رو بگیر با /take")
+    else:
+        end_gamble(telegram_id)
+        bot.reply_to(message, f"💥 باختی! مبلغ {amount} از دست رفت.")
+
+@bot.message_handler(commands=["take"])
+def handle_take(message):
+    telegram_id = get_id(message)
+    amount, active = get_gamble_state(telegram_id)
+    if not active:
+        return bot.reply_to(message, "❌ بازی فعالی نداری.")
+
+    update_balance(telegram_id, amount)
+    end_gamble(telegram_id)
+    bot.reply_to(message, f"💰 مبلغ {amount} با موفقیت برداشت شد. مبارک باشه!")
+
 @bot.message_handler(commands=["commands", "help"])
 def handle_commands(message):
     text = """
