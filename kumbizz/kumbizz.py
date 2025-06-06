@@ -462,7 +462,7 @@ def handle_craft(message):
     add_item(telegram_id, item_name)
     bot.reply_to(message, f"با موفقیت «{item_name}» ساخته شد!")
 
-@bot.message_handler(commands=["upgrademine"])
+@bot.message_handler(commands=["upgrade_mine"])
 def handle_upgrade_mine(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
@@ -590,16 +590,19 @@ def handle_farm_shop(message):
         price = info["price"]
         product = info["product"]
         interval = info["interval_hours"]
+        product_price = info["product_price"]
         text += (
             f"• <b>{name}</b>\n"
             f"  💰 قیمت: {price} سکه\n"
-            f"  🌾 تولید: {product} هر {interval} ساعت\n\n"
+            f"  🌾 تولید: {product} هر {interval} ساعت\n"
+            f"  💰 قیمت {product}: {product_price} سکه\n\n"
         )
 
     bot.reply_to(message, text, parse_mode="HTML")
 
 @bot.message_handler(commands=["list"])
 def handle_list(message):
+    return bot.reply_to(message, "این بخش هنوز راه نیوفتاده")
     parts = message.text.split(" ", 2)
     if len(parts) < 3:
         return bot.reply_to(message, "فرمت درست: /list [نام آیتم] [قیمت]")
@@ -747,7 +750,7 @@ def handle_kumbizz(message):
     add_user(telegram_id)
     success, msg = claim_kumbizz(telegram_id)
     bot.reply_to(message, msg)
-    
+
 from db import upgrade_kumbizz
 
 @bot.message_handler(commands=["upgradekumbizz"])
