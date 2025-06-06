@@ -45,7 +45,7 @@ farm_data = {
         "product": "ذرت",
         "interval_hours": 12,
         "price": 8000,
-        "product_price": 250
+        "product_price": 500
     },
     "مزرعه گندم": {
         "product": "گندم",
@@ -62,6 +62,6 @@ farm_sellable = [
     {"name": "پشم", "base_price": 200},
     {"name": "پر", "base_price": 800},
     {"name": "جو", "base_price": 150},
-    {"name": "ذرت", "base_price": 250},
+    {"name": "ذرت", "base_price": 500},
     {"name": "گندم", "base_price": 75}
 ]
