@@ -50,7 +50,7 @@ def beg(message):
         update_balance(telegram_id, amount)
         xp_gain = 5 * level
         add_xp(telegram_id, xp_gain)
-        bot.reply_to(message, f"یکی دلش سوخت و بهت {amount} تا کامکوین داد! +5XP")
+        bot.reply_to(message, f"یکی دلش سوخت و بهت {amount} تا کامکوین داد! +{xp_gain}XP")
     else:
         bot.reply_to(message, "کسی دلش به حالت نسوخت!")
 
