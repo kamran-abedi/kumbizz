@@ -964,6 +964,7 @@ def handle_upgrade_factory(message):
 🔹 نون و پنیر – از نان + پنیر
 🔹 کره – از شیر + شیر
 """
+    bot.reply_to(message, text, parse_mode="HTML")
 
 @bot.message_handler(commands=["commands", "help"])
 def handle_commands(message):
