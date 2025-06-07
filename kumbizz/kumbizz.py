@@ -903,7 +903,7 @@ def handle_produce(message):
         return bot.reply_to(message, "🏭 در حال حاضر یک محصول در حال تولید داری. ابتدا اونو تحویل بگیر.")
 
     inputs = factory_data[product]["inputs"]
-    inventory = get_inventory(telegram_id)
+    inventory = dict(get_inventory(telegram_id))
 
     # بررسی مواد اولیه
     for item, qty in inputs.items():
