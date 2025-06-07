@@ -21,11 +21,6 @@ def init_db():
         )
         """)
 
-with conn:
-    cursor = conn.cursor()
-    cursor.execute("ALTER TABLE users ADD COLUMN has_factory INTEGER DEFAULT 0;")
-    cursor.execute("ALTER TABLE users ADD COLUMN factory_level INTEGER DEFAULT 0;")
-
 def add_user(telegram_id):
     with conn:
         cursor = conn.cursor()
