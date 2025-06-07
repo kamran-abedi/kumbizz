@@ -1015,3 +1015,40 @@ def upgrade_factory(telegram_id):
     with conn:
         conn.execute("UPDATE users SET factory_level=? WHERE telegram_id=?", (next_level, telegram_id))
     return True, f"✅ کارخانه به سطح {next_level} ارتقا یافت!"
+
+def add_to_factory_queue(telegram_id, product_name):
+    now = int(time.time())
+    with conn:
+        conn.execute("INSERT INTO factory_queue (telegram_id, product, start_time) VALUES (?, ?, ?)",
+                     (telegram_id, product_name, now))
+        
+def get_active_factory_slots(telegram_id):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM factory_queue WHERE telegram_id=?", (telegram_id,))
+        return cursor.fetchone()[0]
+    
+def get_factory_queue(telegram_id):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT product, start_time FROM factory_queue WHERE telegram_id=?", (telegram_id,))
+        return cursor.fetchall()
+    
+def claim_ready_products(telegram_id):
+    from factory_data import factory_data
+    now = int(time.time())
+    queue = get_factory_queue(telegram_id)
+    delivered = []
+
+    for product, start in queue:
+        duration = factory_data.get(product, {}).get("time", 0)
+        if now - start >= duration:
+            add_item(telegram_id, product)
+            delivered.append((product, start))
+
+    with conn:
+        for product, start in delivered:
+            conn.execute("DELETE FROM factory_queue WHERE telegram_id=? AND product=? AND start_time=?",
+                         (telegram_id, product, start))
+
+    return delivered
