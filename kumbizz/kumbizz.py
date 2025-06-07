@@ -911,7 +911,7 @@ def handle_produce(message):
             return bot.reply_to(message, f"❌ برای تولید {product} نیاز به {qty} × {item} داری.")
 
     # کم کردن مواد اولیه
-    for item, qty in inputs.items():
+    for item, qty, _ in inputs.items():
         consume_item(telegram_id, item, qty)
 
     success, msg = start_production(telegram_id, product)
