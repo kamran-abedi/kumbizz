@@ -876,56 +876,83 @@ def handle_guess(message):
     else:
         bot.reply_to(message, f"🎯 عدد صحیح: {number}\n💥 حدست اشتباه بود! شرط از دست رفت.")
 
-from db import get_factory_status, claim_product, build_factory, upgrade_factory, get_factory_info, start_production
+from db import build_factory, upgrade_factory, get_factory_info, get_active_factory_slots, add_to_factory_queue
 
 @bot.message_handler(commands=["produce"])
 def handle_produce(message):
     from factory_data import factory_data
-
     telegram_id = get_id(message)
     add_user(telegram_id)
-    args = message.text.split(maxsplit=1)
 
-    if len(args) < 2:
-        return bot.reply_to(message, "❗ نام محصول رو وارد کن. مثال:\n/produce کیک")
+    parts = message.text.split(maxsplit=2)
+    if len(parts) < 2:
+        return bot.reply_to(message, "🔧 استفاده درست:\n/produce [نام محصول] [تعداد (اختیاری)]")
 
-    product = args[1].strip()
+    product = parts[1]
+    count = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 1
+
     if product not in factory_data:
-        return bot.reply_to(message, "❌ محصول مورد نظر در کارخانه وجود نداره.")
-    
-    has_factory, _ = get_factory_info(telegram_id)
+        return bot.reply_to(message, "❌ این محصول در کارخانه وجود نداره.")
+
+    has_factory, level = get_factory_info(telegram_id)
     if not has_factory:
-        return bot.reply_to(message, "🏭 تو هنوز کارخونه نداری! اول با /buildfactory بسازش.")
+        return bot.reply_to(message, "🏭 هنوز کارخونه نساختی. با /buildfactory شروع کن.")
 
-    # آیا در حال حاضر کارخانه فعاله؟
-    current_product, _ = get_factory_status(telegram_id)
-    if current_product:
-        return bot.reply_to(message, "🏭 در حال حاضر یک محصول در حال تولید داری. ابتدا اونو تحویل بگیر.")
+    max_slots = level
+    used_slots = get_active_factory_slots(telegram_id)
+    available_slots = max_slots - used_slots
 
+    if available_slots <= 0:
+        return bot.reply_to(message, "🛠 همه اسلات‌های کارخانه‌ت در حال تولید هستن.")
+
+    produce_count = min(count, available_slots)
+    if produce_count <= 0:
+        return bot.reply_to(message, "❌ نمی‌تونی بیشتر از ظرفیتت تولید کنی.")
+
+    inventory = dict((name, qty) for name, qty, _ in get_inventory(telegram_id))
     inputs = factory_data[product]["inputs"]
-    raw_inventory = get_inventory(telegram_id)
-    inventory = {name: qty for name, qty, _ in raw_inventory}
 
-    # بررسی مواد اولیه
-    for item, qty in inputs.items():
-        if inventory.get(item, 0) < qty:
-            return bot.reply_to(message, f"❌ برای تولید {product} نیاز به {qty} × {item} داری.")
+    for i in range(produce_count):
+        for item, qty in inputs.items():
+            if inventory.get(item, 0) < qty:
+                return bot.reply_to(message, f"❌ برای تولید {produce_count} تا {product}، مواد اولیه کافی نیست.")
+    
+    for i in range(produce_count):
+        for item, qty in inputs.items():
+            for _ in range(qty):
+                consume_item(telegram_id, item)
+        add_to_factory_queue(telegram_id, product)
 
-    # کم کردن مواد اولیه
-    for item, count in inputs.items():
-        for _ in range(count):
-            consume_item(telegram_id, item)
+    return bot.reply_to(message, f"✅ {produce_count} × {product} در صف تولید قرار گرفت.")
 
-    success, msg = start_production(telegram_id, product)
-    if not success:
-        return bot.reply_to(message, msg)
-    bot.reply_to(message, msg)
+from db import claim_ready_products, get_factory_queue
 
 @bot.message_handler(commands=["factory"])
 def handle_factory(message):
+    from factory_data import factory_data
     telegram_id = get_id(message)
     add_user(telegram_id)
-    success, msg = claim_product(telegram_id)
+
+    delivered = claim_ready_products(telegram_id)
+    msg = ""
+
+    if delivered:
+        items = "\n".join(f"• {name}" for name, _ in delivered)
+        msg += f"📦 محصولات تحویل‌شده:\n{items}\n\n"
+
+    queue = get_factory_queue(telegram_id)
+    if not queue:
+        msg += "📭 در حال حاضر چیزی در صف تولید نداری."
+        return bot.reply_to(message, msg)
+
+    now = int(time.time())
+    msg += "🔧 محصولات در حال ساخت:\n"
+    for product, start in queue:
+        duration = factory_data[product]["time"]
+        remaining = duration - (now - start)
+        minutes = max(0, remaining // 60)
+        msg += f"• {product} - باقی‌مانده: {minutes} دقیقه\n"
+
     bot.reply_to(message, msg)
 
 @bot.message_handler(commands=["buildfactory"])
