@@ -21,7 +21,7 @@ def init_db():
         )
         """)
 with conn:
-    cursor = conn.cursor
+    cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS factory (
         telegram_id INTEGER PRIMARY KEY,
         product TEXT,
