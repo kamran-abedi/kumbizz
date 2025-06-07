@@ -906,7 +906,7 @@ def handle_produce(message):
     inventory = dict(get_inventory(telegram_id))
 
     # بررسی مواد اولیه
-    for item, qty in inputs.items():
+    for item, qty, _ in inputs.items():
         if inventory.get(item, 0) < qty:
             return bot.reply_to(message, f"❌ برای تولید {product} نیاز به {qty} × {item} داری.")
 
