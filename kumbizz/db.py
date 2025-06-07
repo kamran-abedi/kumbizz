@@ -20,6 +20,13 @@ def init_db():
             PRIMARY KEY (telegram_id, item_name)
         )
         """)
+with conn:
+    cursor = conn.cursor
+    cursor.execute("""CREATE TABLE IF NOT EXISTS factory (
+        telegram_id INTEGER PRIMARY KEY,
+        product TEXT,
+        start_time INTEGER
+    );""")
 
 def add_user(telegram_id):
     with conn:
