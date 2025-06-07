@@ -875,6 +875,70 @@ def handle_guess(message):
     else:
         bot.reply_to(message, f"🎯 عدد صحیح: {number}\n💥 حدست اشتباه بود! شرط از دست رفت.")
 
+from db import get_factory_status, claim_product, build_factory, upgrade_factory, get_factory_info, start_production
+
+@bot.message_handler(commands=["produce"])
+def handle_produce(message):
+    from factory_data import factory_data
+
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+    args = message.text.split(maxsplit=1)
+
+    if len(args) < 2:
+        return bot.reply_to(message, "❗ نام محصول رو وارد کن. مثال:\n/produce کیک")
+
+    product = args[1].strip()
+    if product not in factory_data:
+        return bot.reply_to(message, "❌ محصول مورد نظر در کارخانه وجود نداره.")
+    
+    has_factory, _ = get_factory_info(telegram_id)
+    if not has_factory:
+        return bot.reply_to(message, "🏭 تو هنوز کارخونه نداری! اول با /buildfactory بسازش.")
+
+    # آیا در حال حاضر کارخانه فعاله؟
+    current_product, _ = get_factory_status(telegram_id)
+    if current_product:
+        return bot.reply_to(message, "🏭 در حال حاضر یک محصول در حال تولید داری. ابتدا اونو تحویل بگیر.")
+
+    inputs = factory_data[product]["inputs"]
+    inventory = get_inventory(telegram_id)
+
+    # بررسی مواد اولیه
+    for item, qty in inputs.items():
+        if inventory.get(item, 0) < qty:
+            return bot.reply_to(message, f"❌ برای تولید {product} نیاز به {qty} × {item} داری.")
+
+    # کم کردن مواد اولیه
+    for item, qty in inputs.items():
+        consume_item(telegram_id, item, qty)
+
+    success, msg = start_production(telegram_id, product)
+    if not success:
+        return bot.reply_to(message, msg)
+    bot.reply_to(message, msg)
+
+@bot.message_handler(commands=["factory"])
+def handle_factory(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+    success, msg = claim_product(telegram_id)
+    bot.reply_to(message, msg)
+
+@bot.message_handler(commands=["buildfactory"])
+def handle_build_factory(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+    success, msg = build_factory(telegram_id)
+    bot.reply_to(message, msg)
+
+@bot.message_handler(commands=["upgradefactory"])
+def handle_upgrade_factory(message):
+    telegram_id = get_id(message)
+    add_user(telegram_id)
+    success, msg = upgrade_factory(telegram_id)
+    bot.reply_to(message, msg)
+
 @bot.message_handler(commands=["commands", "help"])
 def handle_commands(message):
     text = """
