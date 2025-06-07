@@ -927,3 +927,91 @@ def update_gamble_amount(telegram_id, amount):
 def end_gamble(telegram_id):
     with conn:
         conn.execute("UPDATE gamble_state SET active=0 WHERE telegram_id=?", (telegram_id,))
+
+def get_factory_status(telegram_id):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT product, start_time FROM factory WHERE telegram_id=?", (telegram_id,))
+        row = cursor.fetchone()
+        return row if row else (None, None)
+
+def start_production(telegram_id, product_name):
+    from factory_data import factory_levels
+    from factory_data import factory_data
+
+    has_factory, level = get_factory_info(telegram_id)
+    if not has_factory:
+        return False, "🏭 تو هنوز کارخونه نداری."
+
+    cooldown = factory_levels[level]["cooldown"]
+    now = int(time.time())
+
+    with conn:
+        conn.execute("""
+            INSERT OR REPLACE INTO factory (telegram_id, product, start_time)
+            VALUES (?, ?, ?)
+        """, (telegram_id, product_name, now))
+
+    return True, f"✅ تولید {product_name} شروع شد! زمان تولید: {cooldown // 60} دقیقه"
+    
+def claim_product(telegram_id):
+    from factory_data import factory_data
+    product, start_time = get_factory_status(telegram_id)
+    if not product or not start_time:
+        return False, "🏭 تولیدی در حال انجام نیست."
+
+    now = int(time.time())
+    build_time = factory_data[product]["time"]
+
+    if now - start_time < build_time:
+        remaining = build_time - (now - start_time)
+        minutes = remaining // 60
+        return False, f"⏳ محصول هنوز آماده نیست. باقی‌مانده: {minutes} دقیقه"
+
+    add_item(telegram_id, product)
+    with conn:
+        conn.execute("DELETE FROM factory WHERE telegram_id=?", (telegram_id,))
+    return True, f"✅ محصول {product} با موفقیت تحویل داده شد!"
+
+def get_factory_info(telegram_id):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT has_factory, factory_level FROM users WHERE telegram_id=?", (telegram_id,))
+        row = cursor.fetchone()
+        if row:
+            return row[0], row[1]
+        return 0, 0
+    
+def build_factory(telegram_id):
+    has, _ = get_factory_info(telegram_id)
+    if has:
+        return False, "🏭 قبلاً کارخانه ساختی."
+
+    from factory_data import factory_levels
+    price = factory_levels[1]["price"]
+    if get_balance(telegram_id) < price:
+        return False, f"❌ برای ساخت کارخانه به {price} کام‌کوین نیاز داری."
+
+    update_balance(telegram_id, -price)
+    with conn:
+        conn.execute("UPDATE users SET has_factory=1, factory_level=1 WHERE telegram_id=?", (telegram_id,))
+    return True, "✅ کارخانه سطح ۱ ساخته شد!"
+
+def upgrade_factory(telegram_id):
+    from factory_data import factory_levels
+    has, level = get_factory_info(telegram_id)
+    if not has:
+        return False, "🏭 اول باید کارخانه بسازی."
+
+    next_level = level + 1
+    if next_level not in factory_levels:
+        return False, "🏭 کارخانه به بیشترین سطح ممکن رسیده."
+
+    price = factory_levels[next_level]["price"]
+    if get_balance(telegram_id) < price:
+        return False, f"❌ برای ارتقا به سطح {next_level} به {price} کام‌کوین نیاز داری."
+
+    update_balance(telegram_id, -price)
+    with conn:
+        conn.execute("UPDATE users SET factory_level=? WHERE telegram_id=?", (next_level, telegram_id))
+    return True, f"✅ کارخانه به سطح {next_level} ارتقا یافت!"
