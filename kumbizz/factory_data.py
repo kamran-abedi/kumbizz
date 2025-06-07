@@ -92,29 +92,84 @@ factory_data = {
 }
 factory_levels = {
     1: {
-        "cooldown": 600,
-        "price": 100_000,
+        "price": 50_000,
         "slots": 1
     },
     2: {
-        "cooldown": 450,
-        "price": 250_000,
+        "price": 100_000,
         "slots": 2
     },
     3: {
-        "cooldown": 300,
-        "price": 500_000,
+        "price": 150_000,
         "slots": 3
     },
     4: {
-        "cooldown": 180,
-        "price": 1_000_000,
+        "price": 200_000,
         "slots": 4
     },
     5: {
-        "cooldown": 120,
-        "price": 2_000_000,
+        "price": 250_000,
         "slots": 5
+    },
+    6: {
+        "price": 300_000,
+        "slots": 6
+    },
+    7: {
+        "price": 350_000,
+        "slots": 7
+    },
+    8: {
+        "price": 400_000,
+        "slots": 8
+    },
+    9: {
+        "price": 450_000,
+        "slots": 9
+    },
+    10: {
+        "price": 500_000,
+        "slots": 10
+    },
+    11: {
+        "price": 550_000,
+        "slots": 11
+    },
+    12: {
+        "price": 600_000,
+        "slots": 12
+    },
+    13: {
+        "price": 650_000,
+        "slots": 13
+    },
+    14: {
+        "price": 700_000,
+        "slots": 14
+    },
+    15: {
+        "price": 750_000,
+        "slots": 15
+    },
+    16: {
+        "price": 800_000,
+        "slots": 16
+    },
+    17: {
+        "price": 850_000,
+        "slots": 17
+    },
+    18: {
+        "price": 900_000,
+        "slots": 18
+    },
+    19: {
+        "price": 950_000,
+        "slots": 19
+    },
+    20: {
+        "price": 1_000_000,
+        "slots": 20
     }
 }
 factory_sellable = [
