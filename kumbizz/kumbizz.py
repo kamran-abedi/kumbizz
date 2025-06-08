@@ -884,12 +884,10 @@ def handle_produce(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
 
-    parts = message.text.split(maxsplit=2)
-    if len(parts) < 2:
-        return bot.reply_to(message, "🔧 استفاده درست:\n/produce [نام محصول] [تعداد (اختیاری)]")
+    parts = message.text.split(maxsplit=1)
 
     product = parts[1]
-    count = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 1
+    count = 1
 
     if product not in factory_data:
         return bot.reply_to(message, "❌ این محصول در کارخانه وجود نداره.")
