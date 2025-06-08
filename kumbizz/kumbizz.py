@@ -886,7 +886,7 @@ def handle_produce(message):
 
     parts = message.text.split(maxsplit=1)
 
-    if len(parts) < 1:
+    if len(parts) == 0:
         return bot.reply_to(message, "فرمت نوشتنت اشتباهه!. /produce [محصول]")
     
     product = parts[1]
