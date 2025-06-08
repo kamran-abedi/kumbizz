@@ -948,12 +948,12 @@ def handle_factory(message):
         msg += "📭 در حال حاضر چیزی در صف تولید نداری."
         return bot.reply_to(message, msg)
 
-    now = int(time.time())
+    now = int(time.time() * 1000)
     msg += "🔧 محصولات در حال ساخت:\n"
     for product, start in queue:
         duration = factory_data[product]["time"]
         remaining = duration - (now - start)
-        minutes = max(0, remaining // 60)
+        minutes = max(0, remaining // 60000)
         msg += f"• {product} - باقی‌مانده: {minutes} دقیقه\n"
 
     bot.reply_to(message, msg)
