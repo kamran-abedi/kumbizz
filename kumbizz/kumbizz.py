@@ -909,7 +909,12 @@ def handle_produce(message):
     if produce_count <= 0:
         return bot.reply_to(message, "❌ نمی‌تونی بیشتر از ظرفیتت تولید کنی.")
 
-    inventory = dict((name, qty) for name, qty, _ in get_inventory(telegram_id))
+    raw_inventory = get_inventory(telegram_id)
+    inventory = {}
+    for entry in raw_inventory:
+        name = entry[0]
+        qty = entry[1]
+        inventory[name] = qty
     inputs = factory_data[product]["inputs"]
 
     for i in range(produce_count):
