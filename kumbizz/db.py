@@ -934,7 +934,7 @@ def get_factory_status(telegram_id):
         cursor.execute("SELECT product, start_time FROM factory WHERE telegram_id=?", (telegram_id,))
         row = cursor.fetchone()
         return row if row else (None, None)
-
+    
 def start_production(telegram_id, product_name):
     from factory_data import factory_levels
     from factory_data import factory_data
@@ -944,7 +944,7 @@ def start_production(telegram_id, product_name):
         return False, "🏭 تو هنوز کارخونه نداری."
 
     cooldown = factory_levels[level]["cooldown"]
-    now = int(time.time())
+    now = int(time.time() * 1000)
 
     with conn:
         conn.execute("""
@@ -960,7 +960,7 @@ def claim_product(telegram_id):
     if not product or not start_time:
         return False, "🏭 تولیدی در حال انجام نیست."
 
-    now = int(time.time())
+    now = int(time.time() * 1000)
     build_time = factory_data[product]["time"]
 
     if now - start_time < build_time:
@@ -1017,7 +1017,7 @@ def upgrade_factory(telegram_id):
     return True, f"✅ کارخانه به سطح {next_level} ارتقا یافت!"
 
 def add_to_factory_queue(telegram_id, product_name):
-    now = int(time.time())
+    now = int(time.time() * 1000)
     with conn:
         conn.execute("INSERT INTO factory_queue (telegram_id, product, start_time) VALUES (?, ?, ?)",
                      (telegram_id, product_name, now))
@@ -1036,7 +1036,7 @@ def get_factory_queue(telegram_id):
     
 def claim_ready_products(telegram_id):
     from factory_data import factory_data
-    now = int(time.time())
+    now = int(time.time() * 1000)
     queue = get_factory_queue(telegram_id)
     delivered = []
 
