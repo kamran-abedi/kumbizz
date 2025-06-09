@@ -16,6 +16,13 @@ def get_id(message):
     telegram_id = message.from_user.id
     return telegram_id
 
+def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
 @bot.message_handler(commands=["start"])
 def start(message):
     telegram_id = get_id(message)
@@ -69,6 +76,8 @@ def buy(message):
         add_user(telegram_id)
         item_name = message.text.split(" ", 2)[2]
         qty_str = message.text.split(" ", 2)[1]
+        if not is_int(qty_str):
+            return bot.reply_to(message, "تعداد رو وارد نکردی!")
         qty = int(qty_str)
         item = shop_items.get(item_name)
 
@@ -563,6 +572,8 @@ def handle_buy_farm(message):
         return bot.reply_to(message, "فرمت: /buy_farm [تعداد] [نوع واحد مزرعه]")
 
     qty_str = parts[1].strip()
+    if not is_int(qty_str):
+        return bot.reply_to(message, "تعداد رو وارد نکردی!")
     qty = int(qty_str)
     unit_type = parts[2].strip()
     telegram_id = get_id(message)
