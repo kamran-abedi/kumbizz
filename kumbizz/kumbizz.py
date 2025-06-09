@@ -67,7 +67,8 @@ def buy(message):
     try:
         telegram_id = get_id(message)
         add_user(telegram_id)
-        item_name = message.text.split(" ", 1)[1]
+        item_name = message.text.split(" ", 2)[1]
+        qty = message.text.split(" ", 2)[2]
         item = shop_items.get(item_name)
 
         if not item:
@@ -75,15 +76,16 @@ def buy(message):
             return
 
         user_balance = get_balance(telegram_id)
-        if user_balance < item["price"]:
+        if user_balance < item["price"]*qty:
             bot.reply_to(message, "پول کافی نداری!")
             return
 
-        update_balance(telegram_id, -item["price"])
-        add_item(telegram_id, item_name)
-        bot.reply_to(message, f"تبریک! تو الان یک '{item_name}' داری.")
+        update_balance(telegram_id, -(item["price"]*qty))
+        for i in range(qty):
+            add_item(telegram_id, item_name)
+        bot.reply_to(message, f"تبریک! تو الان {qty} تا '{item_name}' داری.")
     except IndexError:
-        bot.reply_to(message, "فرمت درست: /buy [اسم کالا]")
+        bot.reply_to(message, "فرمت درست: /buy [تعداد] [اسم کالا]")
 
 @bot.message_handler(commands=["inventory"])
 def handle_inventory(message):
