@@ -27,7 +27,7 @@ def show_balance(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
     balance, bank_balance, bank_capacity = get_bank_info(telegram_id)
-    bot.reply_to(message, f"کیف پول: {balance} ⛀\nبانک: {bank_balance}/{bank_capacity} ⛀")
+    bot.reply_to(message, f"کیف پول: {balance} KUM⛀\nبانک: {bank_balance}/{bank_capacity} KUM⛀")
 
 @bot.message_handler(commands=["beg"])
 def beg(message):
@@ -50,7 +50,7 @@ def beg(message):
         update_balance(telegram_id, amount)
         xp_gain = 5 * level
         add_xp(telegram_id, xp_gain)
-        bot.reply_to(message, f"یکی دلش سوخت و بهت {amount} تا کامکوین داد! +{xp_gain}XP")
+        bot.reply_to(message, f"یکی دلش سوخت و بهت {amount} تا KUM⛀ داد! +5XP")
     else:
         bot.reply_to(message, "کسی دلش به حالت نسوخت!")
 
@@ -58,7 +58,7 @@ def beg(message):
 def shop(message):
     text = "فروشگاه کامبیز:\n"
     for name, info in shop_items.items():
-        text += f"{name} - {info['price']} کامبیزکوین\n{info['description']}\n\n"
+        text += f"{name} - {info['price']} KUM⛀\n{info['description']}\n\n"
     text += "برای خرید: /buy [اسم کالا] رو بنویسید."
     bot.reply_to(message, text)
 
@@ -140,7 +140,7 @@ def work(message):
     add_xp(telegram_id, gain_xp)
     set_cooldown(telegram_id, "work",120)
     register_mission_action(telegram_id, "work")
-    bot.reply_to(message, f"آفرین! کار کردی و {reward} کامبیزکوین گرفتی. +{gain_xp}XP")
+    bot.reply_to(message, f"آفرین! کار کردی و {reward} KUM⛀ گرفتی. +{gain_xp}XP")
 
 from fish_data import fish_list
 
@@ -268,7 +268,7 @@ def sell(message):
         success = sell_item(telegram_id, item_name, quantity, price)
         if success:
             total = price * quantity
-            bot.reply_to(message, f"{quantity} عدد '{item_name}' رو به {total} کامبیزکوین فروختی!")
+            bot.reply_to(message, f"{quantity} عدد '{item_name}' رو به {total} KUM⛀ فروختی!")
             register_mission_action(telegram_id, "hunt")
         else:
             bot.reply_to(message, "این آیتم رو به تعداد کافی نداری.")
@@ -416,7 +416,7 @@ def handle_rob(message):
     xp_gain = 10 * thief_level
     add_xp(thief_id, xp_gain)
 
-    bot.reply_to(message, f"تو {steal_amount} کوین از کیف پول قربانی دزدیدی! {msg_effect} +{xp_gain}XP")
+    bot.reply_to(message, f"تو {steal_amount} KUM⛀ از کیف پول قربانی دزدیدی! {msg_effect} +{xp_gain}XP")
 
 @bot.message_handler(commands=["buy_mine"])
 def handle_buy_mine(message):
@@ -600,9 +600,9 @@ def handle_farm_shop(message):
         product_price = info["product_price"]
         text += (
             f"• <b>{name}</b>\n"
-            f"  💰 قیمت: {price} سکه\n"
+            f"  💰 قیمت: {price} KUM⛀\n"
             f"  🌾 تولید: {product} هر {interval} ساعت\n"
-            f"  💰 قیمت {product}: {product_price} سکه\n\n"
+            f"  💰 قیمت {product}: {product_price} KUM⛀\n\n"
         )
 
     bot.reply_to(message, text, parse_mode="HTML")
@@ -723,7 +723,7 @@ def handle_daily(message):
 
     update_balance(telegram_id, 1000)
     update_reward_claim_time(telegram_id, "daily")
-    bot.reply_to(message, "🎁 پاداش روزانه گرفتی: 1000 سکه!")
+    bot.reply_to(message, "🎁 پاداش روزانه گرفتی: 1000 KUM⛀!")
 
 @bot.message_handler(commands=["weekly"])
 def handle_weekly(message):
@@ -735,7 +735,7 @@ def handle_weekly(message):
 
     update_balance(telegram_id, 10000)
     update_reward_claim_time(telegram_id, "weekly")
-    bot.reply_to(message, "🎁 پاداش هفتگی گرفتی: 10000 سکه!")
+    bot.reply_to(message, "🎁 پاداش هفتگی گرفتی: 10000 KUM⛀!")
 
 @bot.message_handler(commands=["monthly"])
 def handle_monthly(message):
@@ -747,7 +747,7 @@ def handle_monthly(message):
 
     update_balance(telegram_id, 100000)
     update_reward_claim_time(telegram_id, "monthly")
-    bot.reply_to(message, "🎁 پاداش ماهانه گرفتی: 100000 سکه!")
+    bot.reply_to(message, "🎁 پاداش ماهانه گرفتی: 100000 KUM⛀!")
 
 from db import claim_kumbizz
 
@@ -783,7 +783,7 @@ def handle_double(message):
 
     update_balance(telegram_id, -amount)
     start_double_or_nothing(telegram_id, amount)
-    bot.reply_to(message, f"🎰 شروع شد! شرط اولیه {amount} کامکوین.\nارسال /continue برای ادامه یا /take برای برداشت.")
+    bot.reply_to(message, f"🎰 شروع شد! شرط اولیه {amount} KUM⛀.\nارسال /continue برای ادامه یا /take برای برداشت.")
 
 @bot.message_handler(commands=["continue"])
 def handle_continue(message):
@@ -796,10 +796,10 @@ def handle_continue(message):
     if random.choice([True, False]):
         new_amount = amount * 2
         update_gamble_amount(telegram_id, new_amount)
-        bot.reply_to(message, f"✅ بردی! مبلغ فعلی: {new_amount} +1XP\nادامه بده با /continue یا پول رو بگیر با /take")
+        bot.reply_to(message, f"✅ بردی! مبلغ فعلی: {new_amount}KUM⛀ +1XP\nادامه بده با /continue یا پول رو بگیر با /take")
     else:
         end_gamble(telegram_id)
-        bot.reply_to(message, f"💥 باختی! مبلغ {amount} از دست رفت. +1XP")
+        bot.reply_to(message, f"💥 باختی! مبلغ {amount}KUM⛀ از دست رفت. +1XP")
 
 @bot.message_handler(commands=["take"])
 def handle_take(message):
@@ -810,7 +810,7 @@ def handle_take(message):
 
     update_balance(telegram_id, amount)
     end_gamble(telegram_id)
-    bot.reply_to(message, f"💰 مبلغ {amount} با موفقیت برداشت شد. مبارک باشه!")
+    bot.reply_to(message, f"💰 مبلغ {amount}KUM⛀ با موفقیت برداشت شد. مبارک باشه!")
 
 @bot.message_handler(commands=["slot"])
 def handle_slot(message):
@@ -856,7 +856,7 @@ def handle_slot(message):
     if reward > 0:
         update_balance(telegram_id, reward)
 
-    bot.reply_to(message, f"🎰 نتیجه:\n{' '.join(result)}\n\n{outcome}\n{'🏆 +'+str(reward)+' سکه +2XP' if reward else '😢 شرط از دست رفت +1XP'}")
+    bot.reply_to(message, f"🎰 نتیجه:\n{' '.join(result)}\n\n{outcome}\n{'🏆 +'+str(reward)+'KUM⛀ +2XP' if reward else '😢 شرط از دست رفت +1XP'}")
 
 @bot.message_handler(commands=["guess"])
 def handle_guess(message):
@@ -884,7 +884,7 @@ def handle_guess(message):
         add_xp(telegram_id, 4)
         reward = bet * 10
         update_balance(telegram_id, reward)
-        bot.reply_to(message, f"🎯 عدد صحیح: {number}\n✅ حدس درست! +{reward} کام‌کوین +5XP")
+        bot.reply_to(message, f"🎯 عدد صحیح: {number}\n✅ حدس درست! +{reward}KUM⛀ کام‌کوین +5XP")
     else:
         bot.reply_to(message, f"🎯 عدد صحیح: {number}\n💥 حدست اشتباه بود! شرط از دست رفت. +1XP")
 
@@ -900,7 +900,7 @@ def handle_produce(message):
 
     if len(parts) < 2:
         return bot.reply_to(message, "فرمت نوشتنت اشتباهه!. /produce [محصول]")
-    
+
     product = parts[1]
     count = 1
 
@@ -993,41 +993,41 @@ def handle_upgrade_factory(message):
 🏭 <b>محصولات قابل تولید در کارخانه:</b>
 
 🔹 آهن – از سنگ آهن
-قیمت فروش: 800
+قیمت فروش: 800KUM⛀
 🔹 مس – از سنگ مس
-قیمت فروش: 1100
+قیمت فروش: 1100KUM⛀
 🔹 آرد – از گندم
-قیمت فروش: 250
+قیمت فروش: 250KUM⛀
 🔹 نان – از آرد
-قیمت فروش: 650
+قیمت فروش: 650KUM⛀
 🔹 کیک – از آرد + شیر
-قیمت فروش: 1300
+قیمت فروش: 1300KUM⛀
 🔹 لباس سنتی – از پشم + گیاه دارویی
-قیمت فروش: 1500
+قیمت فروش: 1500KUM⛀
 🔹 شمع طبی – از موم + گیاه دارویی
-قیمت فروش: 1700
+قیمت فروش: 1700KUM⛀
 🔹 آبجو – از جو
-قیمت فروش: 750
+قیمت فروش: 750KUM⛀
 🔹 شمش طلا – از طلا
-قیمت فروش: 4800
+قیمت فروش: 4800KUM⛀
 🔹 شیشه کریستال – از کریستال آبی + سنگ
-قیمت فروش: 9000
+قیمت فروش: 9000KUM⛀
 🔹 تیتاپ – از کیک + عسل
-قیمت فروش: 2300
+قیمت فروش: 2300KUM⛀
 🔹 زره آهنین – از آهن + پشم
-قیمت فروش: 1900
+قیمت فروش: 1900KUM⛀
 🔹 پاپ کورن – از ذرت
-قیمت فروش: 1200
+قیمت فروش: 1200KUM⛀
 🔹 آجر – از سنگ + زغال
-قیمت فروش: 850
+قیمت فروش: 850KUM⛀
 🔹 بالشت – از پر + پشم
-قیمت فروش: 2000
+قیمت فروش: 2000KUM⛀
 🔹 پنیر – از شیر
-قیمت فروش: 900
+قیمت فروش: 900KUM⛀
 🔹 نون و پنیر – از نان + پنیر
-قیمت فروش: 1800
+قیمت فروش: 1800KUM⛀
 🔹 کره – از شیر + شیر
-قیمت فروش: 950
+قیمت فروش: 950KUM⛀
 """
     bot.reply_to(message, text, parse_mode="HTML")
 
