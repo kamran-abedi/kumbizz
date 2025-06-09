@@ -1045,10 +1045,13 @@ def claim_ready_products(telegram_id):
         if now - start >= duration:
             add_item(telegram_id, product)
             delivered.append((product, start))
+            xp_gain += 10
+
+    add_xp(telegram_id, xp_gain)
 
     with conn:
         for product, start in delivered:
             conn.execute("DELETE FROM factory_queue WHERE telegram_id=? AND product=? AND start_time=?",
                          (telegram_id, product, start))
 
-    return delivered
+    return delivered, xp_gain
