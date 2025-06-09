@@ -1039,6 +1039,7 @@ def claim_ready_products(telegram_id):
     now = int(time.time() * 1000)
     queue = get_factory_queue(telegram_id)
     delivered = []
+    xp_gain = 0
 
     for product, start in queue:
         duration = factory_data.get(product, {}).get("time", 0)
