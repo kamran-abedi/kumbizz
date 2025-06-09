@@ -390,11 +390,11 @@ def handle_rob(message):
     victim_inventory = get_inventory(victim_id)
     msg_effect = ""
     for item, qty, _ in victim_inventory:
-        if item == "گاز اشک‌آور":
+        if item == "گاز اشک‌آور" and random.random() < 0.4:
             msg_effect = "گاز اشک‌آور قربانی باعث شد دزدی شکست بخوره!"
             consume_item(victim_id, item)
             return bot.reply_to(message, msg_effect)
-        elif item == "سگ نگهبان" and random.random() < 0.5:
+        elif item == "سگ نگهبان" and random.random() < 0.2:
             msg_effect = "سگ نگهبان پارس کرد و تو رو فراری داد!"
             return bot.reply_to(message, msg_effect)
         elif item == "کیف زرهی":
