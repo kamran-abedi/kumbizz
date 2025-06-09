@@ -76,11 +76,11 @@ def buy(message):
             return
 
         user_balance = get_balance(telegram_id)
-        if user_balance < item["price"]*qty:
+        if int(user_balance) < item["price"]*qty:
             bot.reply_to(message, "پول کافی نداری!")
             return
 
-        update_balance(telegram_id, -(item["price"]*qty))
+        update_balance(telegram_id, -str(item["price"]*qty))
         for i in range(qty):
             add_item(telegram_id, item_name)
         bot.reply_to(message, f"تبریک! تو الان {qty} تا '{item_name}' داری.")
