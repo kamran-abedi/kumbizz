@@ -219,7 +219,7 @@ def deposit(telegram_id, amount):
         cursor.execute("UPDATE users SET balance = balance - ?, bank_balance = bank_balance + ? WHERE telegram_id=?",
                        (amount, amount, telegram_id))
         
-    return True, f"{amount} کوین به حساب بانکیت واریز شد."
+    return True, f"{amount} KUM⛀ به حساب بانکیت واریز شد."
 
 def withdraw(telegram_id, amount):
     _, bank_balance, _ = get_bank_info(telegram_id)
@@ -232,7 +232,7 @@ def withdraw(telegram_id, amount):
         cursor.execute("UPDATE users SET bank_balance = bank_balance - ?, balance = balance + ? WHERE telegram_id=?",
                        (amount, amount, telegram_id))
 
-    return True, f"{amount} کوین از حساب بانکیت برداشت شد."
+    return True, f"{amount} KUM⛀ از حساب بانکیت برداشت شد."
 
 def upgrade_bank(telegram_id, cost):
     with conn:
@@ -281,7 +281,7 @@ def apply_daily_interest(telegram_id):
             WHERE telegram_id = ?
         """, (interest, today, telegram_id))
         
-    return True, f"سود روزانه به حسابت واریز شد: {interest} کوین!"
+    return True, f"سود روزانه به حسابت واریز شد: {interest} KUM⛀!"
 
 def init_rob_table():
     with conn:
@@ -892,7 +892,7 @@ def claim_kumbizz(telegram_id):
     update_balance(telegram_id, income)
     with conn:
         conn.execute("UPDATE users SET last_kumbizz_claim=? WHERE telegram_id=?", (now, telegram_id))
-    return True, f"✅ {income} کام‌کوین از کامبیز دریافت شد! (طی {capped // 60} دقیقه)"
+    return True, f"✅ {income} KUM⛀ از کامبیز دریافت شد! (طی {capped // 60} دقیقه)"
 
 def upgrade_kumbizz(telegram_id):
     level, _ = get_kumbizz_status(telegram_id)
@@ -901,12 +901,12 @@ def upgrade_kumbizz(telegram_id):
     balance = get_balance(telegram_id)
 
     if balance < price:
-        return False, f"💰 برای ارتقاء به سطح {next_level} باید {price} سکه داشته باشی."
+        return False, f"💰 برای ارتقاء به سطح {next_level} باید {price} KUM⛀ داشته باشی."
 
     update_balance(telegram_id, -price)
     with conn:
         conn.execute("UPDATE users SET kumbizz_level=? WHERE telegram_id=?", (next_level, telegram_id))
-    return True, f"🎉 کامبیز به سطح {next_level} ارتقاء یافت! حالا در هر ثانیه {next_level} سکه تولید می‌کنه."
+    return True, f"🎉 کامبیز به سطح {next_level} ارتقاء یافت! حالا در هر ثانیه {next_level} KUM⛀ تولید می‌کنه."
 
 def start_double_or_nothing(telegram_id, amount):
     with conn:
