@@ -67,8 +67,8 @@ def buy(message):
     try:
         telegram_id = get_id(message)
         add_user(telegram_id)
-        item_name = message.text.split(" ", 2)[1]
-        qty = message.text.split(" ", 2)[2]
+        item_name = message.text.split(" ", 2)[2]
+        qty = message.text.split(" ", 2)[1]
         item = shop_items.get(item_name)
 
         if not item:
