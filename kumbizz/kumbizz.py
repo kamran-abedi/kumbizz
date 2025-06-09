@@ -27,7 +27,7 @@ def show_balance(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
     balance, bank_balance, bank_capacity = get_bank_info(telegram_id)
-    bot.reply_to(message, f"کیف پول: {balance} کوین\nبانک: {bank_balance}/{bank_capacity} کوین")
+    bot.reply_to(message, f"کیف پول: {balance} ⛀\nبانک: {bank_balance}/{bank_capacity} ⛀")
 
 @bot.message_handler(commands=["beg"])
 def beg(message):
@@ -799,7 +799,7 @@ def handle_continue(message):
         bot.reply_to(message, f"✅ بردی! مبلغ فعلی: {new_amount} +1XP\nادامه بده با /continue یا پول رو بگیر با /take")
     else:
         end_gamble(telegram_id)
-        bot.reply_to(message, f"💥 باختی! مبلغ {amount} از دست رفت.")
+        bot.reply_to(message, f"💥 باختی! مبلغ {amount} از دست رفت. +1XP")
 
 @bot.message_handler(commands=["take"])
 def handle_take(message):
