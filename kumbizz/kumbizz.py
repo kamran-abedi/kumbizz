@@ -68,7 +68,8 @@ def buy(message):
         telegram_id = get_id(message)
         add_user(telegram_id)
         item_name = message.text.split(" ", 2)[2]
-        qty = message.text.split(" ", 2)[1]
+        qty_str = message.text.split(" ", 2)[1]
+        qty = int(qty_str)
         item = shop_items.get(item_name)
 
         if not item:
@@ -76,11 +77,11 @@ def buy(message):
             return
 
         user_balance = get_balance(telegram_id)
-        if int(user_balance) < item["price"]*qty:
+        if user_balance < item["price"]*qty:
             bot.reply_to(message, "پول کافی نداری!")
             return
 
-        update_balance(telegram_id, -str(item["price"]*qty))
+        update_balance(telegram_id, -(item["price"]*qty))
         for i in range(qty):
             add_item(telegram_id, item_name)
         bot.reply_to(message, f"تبریک! تو الان {qty} تا '{item_name}' داری.")
@@ -561,7 +562,8 @@ def handle_buy_farm(message):
     if len(parts) < 3:
         return bot.reply_to(message, "فرمت: /buy_farm [تعداد] [نوع واحد مزرعه]")
 
-    qty = parts[1].strip()
+    qty_str = parts[1].strip()
+    qty = int(qty_str)
     unit_type = parts[2].strip()
     telegram_id = get_id(message)
     add_user(telegram_id)
