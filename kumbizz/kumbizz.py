@@ -791,11 +791,12 @@ def handle_continue(message):
     amount, active = get_gamble_state(telegram_id)
     if not active:
         return bot.reply_to(message, "❌ بازی فعالی نداری. از /double شروع کن.")
-
+    
+    add_xp(telegram_id, 1)
     if random.choice([True, False]):
         new_amount = amount * 2
         update_gamble_amount(telegram_id, new_amount)
-        bot.reply_to(message, f"✅ بردی! مبلغ فعلی: {new_amount}\nادامه بده با /continue یا پول رو بگیر با /take")
+        bot.reply_to(message, f"✅ بردی! مبلغ فعلی: {new_amount} +1XP\nادامه بده با /continue یا پول رو بگیر با /take")
     else:
         end_gamble(telegram_id)
         bot.reply_to(message, f"💥 باختی! مبلغ {amount} از دست رفت.")
@@ -836,22 +837,26 @@ def handle_slot(message):
     max_count = max(counts.values())
     reward = 0
     outcome = "💥 باختی!"
+    add_xp(telegram_id, 1)
 
     if max_count == 3:
         if result[0] == "💎":
             reward = bet * 15
             outcome = "💎 سه تا الماس! برد ×15"
+            add_xp(telegram_id, 1)
         else:
             reward = bet * 8
             outcome = f"✅ سه تا {result[0]}! برد ×8"
+            add_xp(telegram_id, 1)
     elif max_count == 2:
         reward = int(bet * 1.5)
         outcome = f"🪙 دو تا {max(counts, key=counts.get)}! برد ×1.5"
+        add_xp(telegram_id, 1)
 
     if reward > 0:
         update_balance(telegram_id, reward)
 
-    bot.reply_to(message, f"🎰 نتیجه:\n{' '.join(result)}\n\n{outcome}\n{'🏆 +'+str(reward)+' سکه' if reward else '😢 شرط از دست رفت'}")
+    bot.reply_to(message, f"🎰 نتیجه:\n{' '.join(result)}\n\n{outcome}\n{'🏆 +'+str(reward)+' سکه +2XP' if reward else '😢 شرط از دست رفت +1XP'}")
 
 @bot.message_handler(commands=["guess"])
 def handle_guess(message):
@@ -873,13 +878,15 @@ def handle_guess(message):
 
     update_balance(telegram_id, -bet)
     number = random.randint(1, 10)
+    add_xp(telegram_id, 1)
 
     if guess == number:
+        add_xp(telegram_id, 4)
         reward = bet * 10
         update_balance(telegram_id, reward)
-        bot.reply_to(message, f"🎯 عدد صحیح: {number}\n✅ حدس درست! +{reward} کام‌کوین")
+        bot.reply_to(message, f"🎯 عدد صحیح: {number}\n✅ حدس درست! +{reward} کام‌کوین +5XP")
     else:
-        bot.reply_to(message, f"🎯 عدد صحیح: {number}\n💥 حدست اشتباه بود! شرط از دست رفت.")
+        bot.reply_to(message, f"🎯 عدد صحیح: {number}\n💥 حدست اشتباه بود! شرط از دست رفت. +1XP")
 
 from db import build_factory, upgrade_factory, get_factory_info, get_active_factory_slots, add_to_factory_queue
 
