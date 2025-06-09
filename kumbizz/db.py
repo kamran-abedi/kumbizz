@@ -501,7 +501,7 @@ def buy_farm_unit(telegram_id, unit_type, qty):
         """, (telegram_id, unit_type, qty, qty))
     
         cursor.execute("UPDATE users SET balance = balance - ? WHERE telegram_id=?", (price, telegram_id))
-    return True, f"یک واحد «{unit_type}» به مزرعه‌ات اضافه شد!"
+    return True, f"{qty} واحد «{unit_type}» به مزرعه‌ات اضافه شد!"
 
 def harvest_farm(telegram_id):
     from farm_data import farm_data
