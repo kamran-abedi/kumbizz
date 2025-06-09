@@ -951,12 +951,12 @@ def handle_factory(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
 
-    delivered = claim_ready_products(telegram_id)
+    delivered, xp_gain = claim_ready_products(telegram_id)
     msg = ""
 
     if delivered:
         items = "\n".join(f"• {name}" for name, _ in delivered)
-        msg += f"📦 محصولات تحویل‌شده:\n{items}\n\n"
+        msg += f"📦 محصولات تحویل‌شده:\n{items}\n+{xp_gain}XP\n"
 
     queue = get_factory_queue(telegram_id)
     if not queue:
