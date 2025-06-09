@@ -173,22 +173,22 @@ factory_levels = {
     }
 }
 factory_sellable = [
-    {"name": "آهن", "base_price": 500},
-    {"name": "مس", "base_price": 800},
-    {"name": "آرد", "base_price": 150},
-    {"name": "نان", "base_price": 300},
-    {"name": "کیک", "base_price": 500},
-    {"name": "لباس سنتی", "base_price": 1200},
-    {"name": "شمع طبی", "base_price": 1300},
-    {"name": "آبجو", "base_price": 500},
-    {"name": "شمش طلا", "base_price": 3500},
-    {"name": "شیشه کریستال", "base_price": 5000},
-    {"name": "تیتاپ", "base_price": 1800},
-    {"name": "زره آهنین", "base_price": 1400},
-    {"name": "پاپ کورن", "base_price": 800},
-    {"name": "آجر", "base_price": 400},
-    {"name": "بالشت", "base_price": 1800},
-    {"name": "پنیر", "base_price": 500},
-    {"name": "نون و پنیر", "base_price": 1000},
-    {"name": "کره", "base_price": 700}
+    {"name": "آهن", "base_price": 800},                # سنگ آهن ×300 → 800
+    {"name": "مس", "base_price": 1100},               # سنگ مس ×500 → 1100
+    {"name": "آرد", "base_price": 250},               # گندم ×75 → 250
+    {"name": "نان", "base_price": 650},               # آرد ×250 → 650
+    {"name": "کیک", "base_price": 1300},              # آرد + شیر = 430 → 1300
+    {"name": "لباس سنتی", "base_price": 1500},        # پشم + گیاه دارویی = 700 → 1500
+    {"name": "شمع طبی", "base_price": 1700},          # موم + گیاه دارویی ≈ 1000 → 1700
+    {"name": "آبجو", "base_price": 750},              # جو ×2 = 300 → 750
+    {"name": "شمش طلا", "base_price": 4800},          # طلا = 2000 → 4800
+    {"name": "شیشه کریستال", "base_price": 9000},    # کریستال + سنگ = 3650 → 9000
+    {"name": "تیتاپ", "base_price": 2300},            # کیک + عسل = 1600 → 2300
+    {"name": "زره آهنین", "base_price": 1900},        # آهن + پشم = 1000 → 1900
+    {"name": "پاپ کورن", "base_price": 1200},         # ذرت = 500 → 1200
+    {"name": "آجر", "base_price": 850},               # سنگ + زغال = 400 → 850
+    {"name": "بالشت", "base_price": 2000},            # پر + پشم = 1000 → 2000
+    {"name": "پنیر", "base_price": 900},              # شیر = 180 → 900
+    {"name": "نون و پنیر", "base_price": 1800},       # نان + پنیر = 1550 → 1800
+    {"name": "کره", "base_price": 950}                # شیر ×2 = 360 → 950
 ]
