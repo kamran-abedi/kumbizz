@@ -308,7 +308,7 @@ def can_rob(telegram_id):
     now = datetime.datetime.utcnow()
     diff = now - last_time
 
-    return diff.total_seconds() >= 86400  # 24 ساعت
+    return diff.total_seconds() >= 14400  # 4 ساعت
 
 def register_rob(telegram_id):
     now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
