@@ -477,13 +477,13 @@ def set_cooldown(telegram_id, action, cooldown_seconds):
             ON CONFLICT(telegram_id, action) DO UPDATE SET cooldown_until=excluded.cooldown_until
         """, (telegram_id, action, cooldown_until))
 
-def buy_farm_unit(telegram_id, unit_type):
+def buy_farm_unit(telegram_id, unit_type, qty):
     from farm_data import farm_data
     data = farm_data.get(unit_type)
     if not data:
         return False, "چنین واحد مزرعه‌ای وجود نداره."
 
-    price = data["price"]
+    price = data["price"]*qty
 
     with conn:
         cursor = conn.cursor()
@@ -496,9 +496,9 @@ def buy_farm_unit(telegram_id, unit_type):
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO farm_units (telegram_id, unit_type, quantity, last_harvest)
-            VALUES (?, ?, 1, NULL)
-            ON CONFLICT(telegram_id, unit_type) DO UPDATE SET quantity = quantity + 1
-        """, (telegram_id, unit_type))
+            VALUES (?, ?, ?, NULL)
+            ON CONFLICT(telegram_id, unit_type) DO UPDATE SET quantity = quantity + ?
+        """, (telegram_id, unit_type, qty, qty))
     
         cursor.execute("UPDATE users SET balance = balance - ? WHERE telegram_id=?", (price, telegram_id))
     return True, f"یک واحد «{unit_type}» به مزرعه‌ات اضافه شد!"
