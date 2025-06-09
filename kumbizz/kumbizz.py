@@ -558,13 +558,14 @@ def handle_eat(message):
 def handle_buy_farm(message):
     from farm_data import farm_data
     parts = message.text.split(" ", 1)
-    if len(parts) < 2:
-        return bot.reply_to(message, "فرمت: /buy_farm [نوع واحد مزرعه]")
+    if len(parts) < 3:
+        return bot.reply_to(message, "فرمت: /buy_farm [تعداد] [نوع واحد مزرعه]")
 
-    unit_type = parts[1].strip()
+    qty = parts[1].strip()
+    unit_type = parts[2].strip()
     telegram_id = get_id(message)
     add_user(telegram_id)
-    success, msg = buy_farm_unit(telegram_id, unit_type)
+    success, msg = buy_farm_unit(telegram_id, unit_type, qty)
     bot.reply_to(message, msg)
 
 @bot.message_handler(commands=["harvest"])
