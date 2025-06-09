@@ -558,7 +558,7 @@ def handle_eat(message):
 @bot.message_handler(commands=["buy_farm"])
 def handle_buy_farm(message):
     from farm_data import farm_data
-    parts = message.text.split(" ", 1)
+    parts = message.text.split(" ", 2)
     if len(parts) < 3:
         return bot.reply_to(message, "فرمت: /buy_farm [تعداد] [نوع واحد مزرعه]")
 
