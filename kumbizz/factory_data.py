@@ -194,4 +194,3 @@ factory_sellable = [
     {"name": "نیمرو", "base_price": 500},
     {"name": "لباس", "base_price": 750}
 ]
-]
