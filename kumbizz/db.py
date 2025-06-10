@@ -1125,6 +1125,10 @@ def run_businesses(telegram_id):
                 for _ in range(qty):
                     add_item(telegram_id, item)
 
+            gain_xp = level * 10
+            add_xp(telegram_id, gain_xp)
+            result_lines.append(f"+{gain_xp}XP")
+
             # بروزرسانی زمان اجرا
             cursor.execute(
                 "UPDATE businesses SET last_run=? WHERE telegram_id=? AND business_type=?",
@@ -1135,9 +1139,5 @@ def run_businesses(telegram_id):
 
     if not result_lines:
         return ["❌ هیچ بیزینسی اجرا نشد."]
-    
-    gain_xp = level * 10
-    add_xp(telegram_id, gain_xp)
-    result_lines.append(f"+{gain_xp}XP")
 
     return result_lines
