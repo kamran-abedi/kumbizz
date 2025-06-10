@@ -1042,6 +1042,57 @@ def handle_upgrade_factory(message):
 """
     bot.reply_to(message, text, parse_mode="HTML")
 
+from db import buy_business, upgrade_business, run_businesses
+
+@bot.message_handler(commands=["buy_business"])
+def handle_buy_business(message):
+    from business_data import business_data
+    telegram_id = get_id(message)
+    parts = message.text.split(maxsplit=1)
+    if len(parts) < 2:
+        return bot.reply_to(message, "🔧 استفاده درست:\n/buybusiness [نام بیزینس]")
+
+    biz = parts[1].strip()
+    if biz not in business_data:
+        return bot.reply_to(message, "❌ چنین بیزینسی وجود نداره.")
+
+    cost = business_data[biz]["upgrade_cost"]
+    if get_balance(telegram_id) < cost:
+        return bot.reply_to(message, f"❌ برای خرید این بیزینس {cost} کامکوین نیاز داری.")
+
+    update_balance(telegram_id, -cost)
+    success, msg = buy_business(telegram_id, biz)
+    bot.reply_to(message, msg)
+
+@bot.message_handler(commands=["upgrade_business"])
+def handle_upgrade_business(message):
+    from business_data import business_data
+    telegram_id = get_id(message)
+    parts = message.text.split(maxsplit=1)
+    if len(parts) < 2:
+        return bot.reply_to(message, "🔧 استفاده درست:\n/upgradebusiness [نام بیزینس]")
+
+    biz = parts[1].strip()
+    if biz not in business_data:
+        return bot.reply_to(message, "❌ چنین بیزینسی وجود نداره.")
+
+    cost = business_data[biz]["upgrade_cost"]
+    if get_balance(telegram_id) < cost:
+        return bot.reply_to(message, f"❌ برای ارتقا {cost} کامکوین نیاز داری.")
+
+    success, msg = upgrade_business(telegram_id, biz, cost)
+    bot.reply_to(message, msg)
+
+@bot.message_handler(commands=["run_business"])
+def handle_run_business(message):
+    telegram_id = get_id(message)
+    produced = run_businesses(telegram_id)
+    if not produced:
+        bot.reply_to(message, "❌ هیچ تولیدی انجام نشد. شاید مواد اولیه کافی نداری.")
+    else:
+        msg = "✅ تولید انجام شد برای این بیزینس‌ها:\n" + "\n".join(f"• {b}" for b in produced)
+        bot.reply_to(message, msg)
+
 @bot.message_handler(commands=["commands", "help"])
 def handle_commands(message):
     text = """
