@@ -1056,3 +1056,65 @@ def claim_ready_products(telegram_id):
                          (telegram_id, product, start))
 
     return delivered, xp_gain
+
+def buy_business(telegram_id, business_type):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM businesses WHERE telegram_id=? AND business_type=?", (telegram_id, business_type))
+        if cursor.fetchone():
+            return False, "🔁 این بیزینس رو قبلاً خریدی."
+
+        cursor.execute("INSERT INTO businesses (telegram_id, business_type, level) VALUES (?, ?, 1)",
+                       (telegram_id, business_type))
+        return True, f"✅ بیزینس {business_type} ساخته شد!"
+    
+def upgrade_business(telegram_id, business_type, cost):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT level FROM businesses WHERE telegram_id=? AND business_type=?", (telegram_id, business_type))
+        row = cursor.fetchone()
+        if not row:
+            return False, "❌ هنوز این بیزینس رو نخریدی."
+        level = row[0]
+
+        update_balance(telegram_id, -cost)
+        cursor.execute("UPDATE businesses SET level = ? WHERE telegram_id=? AND business_type=?",
+                       (level + 1, telegram_id, business_type))
+        return True, f"⬆️ سطح بیزینس {business_type} به {level + 1} ارتقا یافت!"
+    
+def run_businesses(telegram_id):
+    from business_data import business_data
+    inventory = dict((name, qty) for name, qty, *_ in get_inventory(telegram_id))
+    produced = []
+
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT business_type, level FROM businesses WHERE telegram_id=?", (telegram_id,))
+        businesses = cursor.fetchall()
+
+        for biz, level in businesses:
+            data = business_data.get(biz)
+            if not data:
+                continue
+
+            # محاسبه مواد اولیه
+            inputs = {k: v + (level - 1) for k, v in data["base_input"].items()}
+            outputs = {k: v + (level - 1) * 4 for k, v in data["base_output"].items()}
+
+            # بررسی موجودی
+            if any(inventory.get(item, 0) < qty for item, qty in inputs.items()):
+                continue
+
+            # مصرف مواد اولیه
+            for item, qty in inputs.items():
+                for _ in range(qty):
+                    consume_item(telegram_id, item)
+
+            # افزودن محصول
+            for item, qty in outputs.items():
+                for _ in range(qty):
+                    add_item(telegram_id, item)
+
+            produced.append(f"{biz} (سطح {level})")
+
+    return produced
