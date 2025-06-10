@@ -12,12 +12,12 @@ business_data = {
     "cooldown": 1800_000
   },
   "شیرینی پزی": {
-    "base_input": {"نان": 1, "شیر": 1},
-    "base_output": {"کیک": 2},
+    "base_input": {"آرد": 2},
+    "base_output": {"کیک": 3},
     "upgrade_cost": 25000,
     "cooldown": 3600_000
   },
-  "تولیدی لباس": {
+  "کارگاه لباس محلی": {
     "base_input": {"پشم": 1, "گیاه دارویی": 1},
     "base_output": {"لباس سنتی": 2},
     "upgrade_cost": 25000,
@@ -35,14 +35,14 @@ business_data = {
     "upgrade_cost": 20000,
     "cooldown": 900_000
   },
-  "نانوایی سنتی": {
-    "base_input": {"آرد": 1, "پنیر": 1},
+  "تولیدی صبحانه": {
+    "base_input": {"نان": 1, "پنیر": 1},
     "base_output": {"نون و پنیر": 2},
     "upgrade_cost": 30000,
     "cooldown": 3600_000
   },
   "کارگاه بالشت دوزی": {
-    "base_input": {"پشم": 1, "پر": 1},
+    "base_input": {"پر": 1},
     "base_output": {"بالشت": 2},
     "upgrade_cost": 30000,
     "cooldown": 1800_000
@@ -54,8 +54,8 @@ business_data = {
     "cooldown": 3600_000
   },
   "آجرپزی": {
-    "base_input": {"سنگ": 1, "رغال سنگ": 1},
-    "base_output": {"آجر": 2},
+    "base_input": {"سنگ": 1},
+    "base_output": {"آجر": 4},
     "upgrade_cost": 25000,
     "cooldown": 900_000
   },
@@ -73,13 +73,13 @@ business_data = {
   },
   "پاپ کورن سازی": {
     "base_input": {"ذرت": 1},
-    "base_output": {"پاپ کورن": 2},
+    "base_output": {"پاپ کورن": 5},
     "upgrade_cost": 20000,
     "cooldown": 900_000
   },
   "تولیدی کره": {
     "base_input": {"شیر": 2},
-    "base_output": {"کره": 2},
+    "base_output": {"کره": 3},
     "upgrade_cost": 25000,
     "cooldown": 900_000
   },
@@ -88,5 +88,23 @@ business_data = {
     "base_output": {"زره آهنین": 2},
     "upgrade_cost": 35000,
     "cooldown": 1800_000
+  },
+  "تولیدی دلستر": {
+    "base_input": {"جو": 1},
+    "base_output": {"آبجو": 4},
+    "upgrade_cost": 20000,
+    "cooldown": 900_000
+  },
+  "صبحانه فروشی": {
+    "base_input": {"تخم مرغ": 1},
+    "base_output": {"نیمرو": 3},
+    "upgrade_cost": 20000,
+    "cooldown": 900_000
+  },
+  "تولیدی پوشاک": {
+    "base_input": {"پشم": 1},
+    "base_output": {"لباس": 3},
+    "upgrade_cost": 20000,
+    "cooldown": 900_000
   }
 }
