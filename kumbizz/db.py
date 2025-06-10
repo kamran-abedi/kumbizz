@@ -1135,5 +1135,9 @@ def run_businesses(telegram_id):
 
     if not result_lines:
         return ["❌ هیچ بیزینسی اجرا نشد."]
+    
+    gain_xp = level * 10
+    add_xp(telegram_id, gain_xp)
+    result_lines.append(f"+{gain_xp}XP")
 
     return result_lines
