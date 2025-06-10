@@ -1085,24 +1085,34 @@ def upgrade_business(telegram_id, business_type, cost):
 def run_businesses(telegram_id):
     from business_data import business_data
     inventory = dict((name, qty) for name, qty, *_ in get_inventory(telegram_id))
-    produced = []
+    now_ms = int(time.time() * 1000)
+    result_lines = []
 
     with conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT business_type, level FROM businesses WHERE telegram_id=?", (telegram_id,))
+        cursor.execute("SELECT business_type, level, last_run FROM businesses WHERE telegram_id=?", (telegram_id,))
         businesses = cursor.fetchall()
 
-        for biz, level in businesses:
+        for biz, level, last_run in businesses:
             data = business_data.get(biz)
             if not data:
                 continue
 
-            # محاسبه مواد اولیه
+            cooldown_ms = data.get("cooldown", 1800000)
             inputs = {k: v + (level - 1) for k, v in data["base_input"].items()}
             outputs = {k: v + (level - 1) * 4 for k, v in data["base_output"].items()}
 
+            # بررسی زمان کول‌داون
+            if last_run and now_ms - last_run < cooldown_ms:
+                remaining = cooldown_ms - (now_ms - last_run)
+                minutes = remaining // 60000
+                seconds = (remaining % 60000) // 1000
+                result_lines.append(f"⏳ {biz} (سطح {level}) - آماده نیست، زمان باقی‌مانده: {minutes}دقیقه و {seconds}ثانیه")
+                continue
+
             # بررسی موجودی
             if any(inventory.get(item, 0) < qty for item, qty in inputs.items()):
+                result_lines.append(f"❌ {biz} (سطح {level}) - مواد اولیه کافی نیست")
                 continue
 
             # مصرف مواد اولیه
@@ -1110,11 +1120,20 @@ def run_businesses(telegram_id):
                 for _ in range(qty):
                     consume_item(telegram_id, item)
 
-            # افزودن محصول
+            # تولید محصول
             for item, qty in outputs.items():
                 for _ in range(qty):
                     add_item(telegram_id, item)
 
-            produced.append(f"{biz} (سطح {level})")
+            # بروزرسانی زمان اجرا
+            cursor.execute(
+                "UPDATE businesses SET last_run=? WHERE telegram_id=? AND business_type=?",
+                (now_ms, telegram_id, biz)
+            )
 
-    return produced
+            result_lines.append(f"✅ {biz} (سطح {level}) - تولید انجام شد!")
+
+    if not result_lines:
+        return ["❌ هیچ بیزینسی اجرا نشد."]
+
+    return result_lines
