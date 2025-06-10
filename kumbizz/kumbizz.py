@@ -1050,7 +1050,7 @@ def handle_buy_business(message):
     telegram_id = get_id(message)
     parts = message.text.split(maxsplit=1)
     if len(parts) < 2:
-        return bot.reply_to(message, "🔧 استفاده درست:\n/buybusiness [نام بیزینس]")
+        return bot.reply_to(message, "🔧 استفاده درست:\n/buy_business [نام بیزینس]")
 
     biz = parts[1].strip()
     if biz not in business_data:
@@ -1070,7 +1070,7 @@ def handle_upgrade_business(message):
     telegram_id = get_id(message)
     parts = message.text.split(maxsplit=1)
     if len(parts) < 2:
-        return bot.reply_to(message, "🔧 استفاده درست:\n/upgradebusiness [نام بیزینس]")
+        return bot.reply_to(message, "🔧 استفاده درست:\n/upgrade_business [نام بیزینس]")
 
     biz = parts[1].strip()
     if biz not in business_data:
