@@ -56,7 +56,7 @@ def handle_invite(message):
     user_id = message.from_user.id
     bot.reply_to(message,
         f"📨 لینک دعوت اختصاصی شما:\n"
-        f"https://t.me/YOUR_BOT_USERNAME?start={user_id}\n\n"
+        f"https://t.me/kumbizz_bot?start={user_id}\n\n"
         f"📊 تعداد دعوت‌های موفق شما: {get_invite_count(user_id)}"
     )
     
