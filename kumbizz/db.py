@@ -2,6 +2,10 @@ import sqlite3
 
 conn = sqlite3.connect("kumbizz.db", check_same_thread=False)
 
+with conn:
+    cursor = conn.cursor()
+    cursor.execute("ALTER TABLE invites ADD COLUMN invite_count INTEGER DEFAULT 0;")
+
 def init_db():
     with conn:
         cursor = conn.cursor()
