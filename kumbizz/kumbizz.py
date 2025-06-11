@@ -34,13 +34,31 @@ def is_int(s):
         return True
     except ValueError:
         return False
+        
+from db import register_invite, increment_invite_count, user_exists, get_invite_count
 
 @bot.message_handler(commands=["start"])
 def start(message):
     telegram_id = get_id(message)
     add_user(telegram_id)
+    parts = message.text.split()
+    if len(parts) > 1:
+        inviter_id = int(parts[1])
+        if inviter_id != telegram_id and user_exists(inviter_id):
+            register_invite(telegram_id, inviter_id)
+            update_balance(inviter_id, 1000)
+            increment_invite_count(inviter_id)
     bot.reply_to(message, "سلام. به دنیای کامبیز خوش اومدی! برای دیدن دستور های موجود بنویسید /commands")
 
+@bot.message_handler(commands=["invite"])
+def handle_invite(message):
+    user_id = message.from_user.id
+    bot.reply_to(message,
+        f"📨 لینک دعوت اختصاصی شما:\n"
+        f"https://t.me/YOUR_BOT_USERNAME?start={user_id}\n\n"
+        f"📊 تعداد دعوت‌های موفق شما: {get_invite_count(user_id)}"
+    )
+    
 @bot.message_handler(commands=["balance"])
 def show_balance(message):
     telegram_id = get_id(message)
