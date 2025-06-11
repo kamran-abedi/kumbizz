@@ -21,6 +21,26 @@ def init_db():
         )
         """)
 
+def get_data():
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM users")
+        users = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM businesses")
+        biz_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT SUM(balance) FROM users")
+        total_balance = cursor.fetchone()[0]
+
+    msg = (
+        f"📈 آمار بازی:\n"
+        f"👥 کاربران: {users}\n"
+        f"🏭 بیزینس‌ها: {biz_count}\n"
+        f"💰 مجموع کامکوین‌ها: {total_balance:,}"
+    )
+    return msg
+
 def add_user(telegram_id):
     with conn:
         cursor = conn.cursor()
