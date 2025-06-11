@@ -43,7 +43,17 @@ def get_data():
 
 def register_invite(invited, inviter):
     with conn:
-        conn.execute("INSERT OR IGNORE INTO invites (invited_id, inviter_id) VALUES (?, ?)", (invited, inviter))
+        cursor = conn.cursor()
+        # تلاش برای ثبت دعوت
+        cursor.execute("SELECT 1 FROM invites WHERE invited_id=?", (invited,))
+        if cursor.fetchone():
+            return False  # قبلاً دعوت شده
+
+        cursor.execute("INSERT INTO invites (invited_id, inviter_id) VALUES (?, ?)", (invited, inviter))
+        cursor.execute("UPDATE users SET invite_count = invite_count + 1 WHERE telegram_id=?", (inviter,))
+        update_balance(inviter, 50000)
+        update_balance(invited, 50000)
+        return True
 
 def increment_invite_count(inviter):
     with conn:
