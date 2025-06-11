@@ -12,6 +12,18 @@ bot = telebot.TeleBot("7235180534:AAH_3W3R07_AaHT_QN05RsOGS9Lk5no4ar4")
 init_db()
 init_rob_table()
 
+ADMIN_ID = 997816328  # آیدی عددی تلگرام خودت
+
+from db import get_data
+
+@bot.message_handler(commands=["stats"])
+def handle_stats(message):
+    if message.from_user.id != ADMIN_ID:
+        return bot.reply_to(message, "⛔ این دستور فقط برای ادمین فعاله.")
+    
+    data = get_data()
+    bot.reply_to(message, data)
+
 def get_id(message):
     telegram_id = message.from_user.id
     return telegram_id
