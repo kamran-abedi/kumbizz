@@ -41,6 +41,27 @@ def get_data():
     )
     return msg
 
+def register_invite(invited, inviter):
+    with conn:
+        conn.execute("INSERT OR IGNORE INTO invites (invited_id, inviter_id) VALUES (?, ?)", (invited, inviter))
+
+def increment_invite_count(inviter):
+    with conn:
+        conn.execute("UPDATE users SET invite_count = invite_count + 1 WHERE telegram_id=?", (inviter,))
+
+def user_exists(telegram_id):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM users WHERE telegram_id=?", (telegram_id,))
+        return cursor.fetchone() is not None
+    
+def get_invite_count(telegram_id):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT invite_count FROM users WHERE telegram_id=?", (telegram_id,))
+        row = cursor.fetchone()
+        return row[0] if row else 0
+
 def add_user(telegram_id):
     with conn:
         cursor = conn.cursor()
