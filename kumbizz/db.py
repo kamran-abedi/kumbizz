@@ -21,6 +21,13 @@ def init_db():
         )
         """)
 
+with conn:
+    cursor = conn.cursor()
+    cursor.execute("""CREATE TABLE IF NOT EXISTS invites (
+    invited_id INTEGER PRIMARY KEY,
+    inviter_id INTEGER
+);""")
+
 def get_data():
     with conn:
         cursor = conn.cursor()
