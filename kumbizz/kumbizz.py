@@ -1221,6 +1221,8 @@ def handle_commands(message):
     text = """
 🧾 <b>دستورات بات کامبیز</b>
 
+/invite برای گرفتن لینک و دیدن تعداد دعوت ها
+
 /daily جایزه روزانه
 /weekly جایزه هفتگی
 /monthly جایزه ماهانه
