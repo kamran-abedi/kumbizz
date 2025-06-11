@@ -46,7 +46,8 @@ def start(message):
         inviter_id = int(parts[1])
         if inviter_id != telegram_id and user_exists(inviter_id):
             register_invite(telegram_id, inviter_id)
-            update_balance(inviter_id, 1000)
+            update_balance(inviter_id, 50000)
+            update_balance(telegram_id, 50000)
             increment_invite_count(inviter_id)
     bot.reply_to(message, "سلام. به دنیای کامبیز خوش اومدی! برای دیدن دستور های موجود بنویسید /commands")
 
