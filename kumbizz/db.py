@@ -50,7 +50,7 @@ def register_invite(invited, inviter):
             return False  # قبلاً دعوت شده
 
         cursor.execute("INSERT INTO invites (invited_id, inviter_id) VALUES (?, ?)", (invited, inviter))
-        cursor.execute("UPDATE users SET invite_count = invite_count + 1 WHERE telegram_id=?", (inviter,))
+        cursor.execute("UPDATE invites SET invite_count = invite_count + 1 WHERE telegram_id=?", (inviter,))
         update_balance(inviter, 50000)
         update_balance(invited, 50000)
         return True
