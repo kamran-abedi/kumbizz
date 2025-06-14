@@ -103,6 +103,19 @@ def add_item(telegram_id, item_name):
             DO UPDATE SET quantity = quantity + 1
         """, (telegram_id, item_name, default_hp))
         
+def add_many_item(telegram_id, item_name, qty):
+    from items import shop_items
+    item = shop_items.get(item_name)
+    default_hp = item.get("hp", 100) if item else 100
+
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO inventory (telegram_id, item_name, quantity, hp)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(telegram_id, item_name)
+            DO UPDATE SET quantity = quantity + ?
+        """, (telegram_id, item_name, qty, default_hp, qty))
 
 def get_inventory(telegram_id):
     with conn:
@@ -581,9 +594,8 @@ def harvest_farm(telegram_id):
                 continue
 
         product = unit_info["product"]
-        for i in range(qty):
-            add_item(telegram_id, product)
-            xp_gain += 10
+        add_many_item(telegram_id, product, qty)
+        xp_gain += 10*qty
         total_collected.append(f"{product} × {qty}")
 
         with conn:
