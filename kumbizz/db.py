@@ -395,6 +395,17 @@ def consume_item(telegram_id, item_name):
             DELETE FROM inventory WHERE telegram_id = ? AND item_name = ? AND quantity <= 0
         """, (telegram_id, item_name))
 
+def consume_many_item(telegram_id, item_name, qty):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE inventory SET quantity = quantity - ?
+            WHERE telegram_id = ? AND item_name = ?
+        """, (qty, telegram_id, item_name))
+        cursor.execute("""
+            DELETE FROM inventory WHERE telegram_id = ? AND item_name = ? AND quantity <= 0
+        """, (telegram_id, item_name))
+
 def buy_mine(telegram_id):
     with conn:
         cursor = conn.cursor()
@@ -1180,13 +1191,11 @@ def run_businesses(telegram_id):
 
             # مصرف مواد اولیه
             for item, qty in inputs.items():
-                for _ in range(qty):
-                    consume_item(telegram_id, item)
+                consume_many_item(telegram_id, item, qty)
 
             # تولید محصول
             for item, qty in outputs.items():
-                for _ in range(qty):
-                    add_item(telegram_id, item)
+                add_many_item(telegram_id, item, qty)
 
             gain_xp = level * 10
             add_xp(telegram_id, gain_xp)
