@@ -2,15 +2,6 @@ import sqlite3
 
 conn = sqlite3.connect("kumbizz.db", check_same_thread=False)
 
-with conn:
-    cursor = conn.cursor()
-    cursor.execute("""CREATE TABLE IF NOT EXISTS equipped_items (
-    telegram_id INTEGER,
-    item_type TEXT,
-    item_name TEXT,
-    PRIMARY KEY (telegram_id, item_type)
-);""")
-
 def init_db():
     with conn:
         cursor = conn.cursor()
