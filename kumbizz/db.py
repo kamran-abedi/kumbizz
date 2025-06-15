@@ -1173,8 +1173,8 @@ def run_businesses(telegram_id):
                 continue
 
             cooldown_ms = data.get("cooldown", 1800000)
-            inputs = {k: v + (level - 1) for k, v in data["base_input"].items()}
-            outputs = {k: v + (level - 1) * 4 for k, v in data["base_output"].items()}
+            inputs = {k: v * level for k, v in data["base_input"].items()}
+            outputs = {k: v * level for k, v in data["base_output"].items()}
 
             # بررسی زمان کول‌داون
             if last_run and now_ms - last_run < cooldown_ms:
