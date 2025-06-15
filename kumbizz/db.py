@@ -1213,3 +1213,91 @@ def run_businesses(telegram_id):
         return ["❌ هیچ بیزینسی اجرا نشد."]
 
     return result_lines
+
+def equip_item(telegram_id, item_type, item_name):
+    with conn:
+        conn.execute("""
+            INSERT INTO equipped_items (telegram_id, item_type, item_name)
+            VALUES (?, ?, ?)
+            ON CONFLICT(telegram_id, item_type) DO UPDATE SET item_name=excluded.item_name
+        """, (telegram_id, item_type, item_name))
+
+def get_equipped_items(telegram_id):
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT item_type, item_name FROM equipped_items WHERE telegram_id=?", (telegram_id,))
+        return dict(cursor.fetchall())
+    
+def get_combat_stats(telegram_id):
+    from combat_items import combat_items
+    equipped = get_equipped_items(telegram_id)
+    stats = {"attack": 0, "defense": 0, "hp": 100, "agility": 0}  # HP پایه
+    
+    for item_type, item_name in equipped.items():
+        item = combat_items.get(item_type, {}).get(item_name, {})
+        for stat in stats:
+            stats[stat] += item.get(stat, 0)
+    return stats
+
+def simulate_duel(attacker_id, defender_id):
+    import random
+
+    atk_stats = get_combat_stats(attacker_id)
+    def_stats = get_combat_stats(defender_id)
+
+    atk_hp = atk_stats["hp"]
+    def_hp = def_stats["hp"]
+
+    rounds = []
+    max_turns = 25
+    turn = 1
+
+    # انتخاب مبارز اول
+    if random.randint(0, atk_stats["agility"] + def_stats["agility"]) < def_stats["agility"]:
+        current = "def"
+    else:
+        current = "atk"
+
+    while atk_hp > 0 and def_hp > 0 and turn <= max_turns:
+        if current == "atk":
+            damage = atk_stats["attack"]
+            if random.randint(0, 100) < def_stats["agility"]:
+                rounds.append(f"❌ مدافع جاخالی داد!")
+            else:
+                if random.randint(0, 100) < atk_stats["agility"] // 2:
+                    # عبور از دفاع
+                    pass
+                else:
+                    damage -= def_stats["defense"]
+                damage = max(0, damage)
+                def_hp -= damage
+                rounds.append(f"⚔️ حمله: {damage} → مدافع: {max(0, def_hp)}❤️")
+            current = "def"
+        else:
+            damage = def_stats["attack"]
+            if random.randint(0, 100) < atk_stats["agility"]:
+                rounds.append(f"❌ مهاجم جاخالی داد!")
+            else:
+                if random.randint(0, 100) < def_stats["agility"] // 2:
+                    pass
+                else:
+                    damage -= atk_stats["defense"]
+                damage = max(0, damage)
+                atk_hp -= damage
+                rounds.append(f"🛡️ دفاع حمله خورد: {damage} → مهاجم: {max(0, atk_hp)}❤️")
+            current = "atk"
+        turn += 1
+
+    # نتیجه‌گیری
+    if atk_hp <= 0 and def_hp <= 0:
+        winner = None
+        rounds.append("🤝 مساوی! هر دو مردند.")
+    elif atk_hp > def_hp:
+        winner = attacker_id
+    elif def_hp > atk_hp:
+        winner = defender_id
+    else:
+        winner = None
+        rounds.append("🤝 مساوی! برنده‌ای نیست.")
+
+    return winner, rounds
