@@ -1288,6 +1288,24 @@ def handle_duel(message):
 
     bot.reply_to(message, result_text)
 
+@bot.message_handler(commands=["combat_shop"])
+def handle_combat_shop(message):
+    from combat_items import combat_items
+
+    text = "<b>🛡️ فروشگاه آیتم‌های جنگی:</b>\n"
+    for category, items in combat_items.items():
+        text += f"\n<b>🔹 {category}</b>\n"
+        for name, info in items.items():
+            price = info.get("price", 0)
+            stat = ""
+            for key in ["attack", "defense", "hp", "agility"]:
+                if key in info:
+                    stat = f"{key.capitalize()}: {info[key]}"
+                    break
+            text += f"• {name} ({stat}) - 💵 {price} KUM⛀\n"
+
+    bot.reply_to(message, text, parse_mode="HTML")
+
 @bot.message_handler(commands=["commands", "help"])
 def handle_commands(message):
     text = """
