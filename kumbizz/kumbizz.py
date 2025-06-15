@@ -1216,12 +1216,82 @@ def handle_upgrade_factory(message):
 """
     bot.reply_to(message, text, parse_mode="HTML")
 
+from db import equip_item, get_equipped_items, simulate_duel
+
+@bot.message_handler(commands=["equip"])
+def handle_equip(message):
+    from combat_items import combat_items
+    telegram_id = get_id(message)
+    parts = message.text.split(maxsplit=1)
+
+    if len(parts) < 2:
+        return bot.reply_to(message, "📦 استفاده صحیح: /equip [نام آیتم]")
+
+    item_name = parts[1]
+    inventory = [name for name, _, *_ in get_inventory(telegram_id)]
+    
+    if item_name not in inventory:
+        return bot.reply_to(message, "❌ شما این آیتم رو نداری.")
+
+    # پیدا کردن نوع آیتم
+    item_type = None
+    for typ in combat_items:
+        if item_name in combat_items[typ]:
+            item_type = typ
+            break
+
+    if not item_type:
+        return bot.reply_to(message, "❌ این آیتم جنگی نیست.")
+
+    equip_item(telegram_id, item_type, item_name)
+    bot.reply_to(message, f"✅ آیتم {item_name} برای بخش {item_type} تجهیز شد.")
+
+@bot.message_handler(commands=["equipment"])
+def handle_equipment(message):
+    telegram_id = get_id(message)
+    equipped = get_equipped_items(telegram_id)
+
+    if not equipped:
+        return bot.reply_to(message, "❌ شما هیچ آیتمی تجهیز نکردید.")
+
+    response = "🧰 تجهیزات فعلی شما:\n"
+    for typ in ["سلاح", "زره", "چابکی", "HP"]:
+        item = equipped.get(typ, "❌ ندارد")
+        response += f"• {typ}: {item}\n"
+
+    bot.reply_to(message, response)
+
+@bot.message_handler(commands=["duel"])
+def handle_duel(message):
+    if not message.reply_to_message:
+        return bot.reply_to(message, "برای دوئل باید روی پیام طرف ریپلای بزنی!")
+
+    user1 = message.from_user.id
+    user2 = message.reply_to_message.from_user.id
+
+    if user1 == user2:
+        return bot.reply_to(message, "😐 نمی‌تونی با خودت دوئل کنی.")
+
+    winner, log = simulate_duel(user1, user2)
+    result_text = "\n".join(log[:30])  # حداکثر 30 خط لاگ
+
+    if winner == user1:
+        update_balance(user1, 2000)
+        update_balance(user2, -1000)
+        result_text += "\n\n🏆 شما برنده شدید و 2000 کامکوین گرفتید!"
+    elif winner == user2:
+        update_balance(user2, 2000)
+        update_balance(user1, -1000)
+        result_text += "\n\n🏆 شما شکست خوردید. 1000 کامکوین از دست دادید."
+    else:
+        result_text += "\n\n🤝 دوئل بدون برنده پایان یافت."
+
+    bot.reply_to(message, result_text)
+
 @bot.message_handler(commands=["commands", "help"])
 def handle_commands(message):
     text = """
 🧾 <b>دستورات بات کامبیز</b>
-
-/invite برای گرفتن لینک و دیدن تعداد دعوت ها
 
 /daily جایزه روزانه
 /weekly جایزه هفتگی
@@ -1281,3 +1351,4 @@ def handle_commands(message):
     bot.reply_to(message, text, parse_mode="HTML")
 
 bot.polling()
+  
